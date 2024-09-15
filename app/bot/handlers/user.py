@@ -57,8 +57,9 @@ async def buy_subscription_get_periods(call: CallbackQuery, state: FSMContext):
     if sub_type.name == 'trial':
         await state.set_state(BuySubSteps.TRIAL)
         stop_date = dt_now + timedelta(sub_type.duration)
-        return await call.message.edit_text(text=sub_activity_info.render(stop_date.strftime("%d.%m.%Y %H:%M:%S")),
-                                            reply_markup=activate_trial_kb())
+        return await call.message.edit_text(
+            text=sub_activity_info.render({'stop_date': stop_date.strftime("%d.%m.%Y %H:%M:%S")}),
+            reply_markup=activate_trial_kb())
     else:
         # Проверка длительности будущей подписки
         last_sub: Subscriptions = await SubscriptionsDAO.find_last_sub_by_user_tg_id(telegram_id)
@@ -66,7 +67,6 @@ async def buy_subscription_get_periods(call: CallbackQuery, state: FSMContext):
             stop_date = (last_sub.stop + timedelta(sub_type.duration))
         else:
             stop_date = dt_now + timedelta(sub_type.duration)
-        text = f'Подписка будет активна до {stop_date.strftime("%d.%m.%Y %H:%M:%S")} МСК'
 
         payment_request: PaymentRequests = await main_interface.create_payment_request(
             telegram_id,
@@ -74,7 +74,9 @@ async def buy_subscription_get_periods(call: CallbackQuery, state: FSMContext):
         )
         redirect_url = await main_interface.create_redirect_url(payment_request.label)
         await state.set_state(BuySubSteps.PAY_SUB)
-        return await call.message.edit_text(text=text, reply_markup=pay_kb(sub_type, redirect_url))
+        return await call.message.edit_text(
+            text=sub_activity_info.render({'stop_date': stop_date.strftime("%d.%m.%Y %H:%M:%S")}),
+            reply_markup=pay_kb(sub_type, redirect_url))
 
 
 async def activate_trial(call: CallbackQuery, state: FSMContext):
