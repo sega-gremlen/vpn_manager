@@ -63,7 +63,6 @@ async def get_payment(
         raise WrongHashSumm
 
     if os.getenv('MODE') in ('PROD', 'DEV'):
-        print('Перед активацией')
         # Не знаю как это прокрутить в тесте
         await activate_subscription(payment_data, bot)
         return Response(status_code=200)

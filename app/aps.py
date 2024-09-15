@@ -62,6 +62,7 @@ class Aps:
             dt_now = datetime.now(tz=tz_obj)
         except zoneinfo.ZoneInfoNotFoundError:
             dt_now = datetime.now()
+
         if end_date < dt_now:
             print(f'Дата завершения работы меньше текущей даты для {telegram_id}')
             return
@@ -69,9 +70,9 @@ class Aps:
         job_id = str(telegram_id)
 
         # Удаляем старую работу если вдруг такая имеется
-        job = self.scheduler.get_job(job_id)
+        job = aps.scheduler.get_job(job_id)
         if job:
-            self.scheduler.remove_job(job.id)
+            aps.scheduler.remove_job(job.id)
 
         trigger = IntervalTrigger(
             days=days_interval,
@@ -79,7 +80,7 @@ class Aps:
             end_date=end_date
         )
 
-        self.scheduler.add_job(
+        aps.scheduler.add_job(
             traffic_reset,
             trigger=trigger,
             args=[telegram_id],
