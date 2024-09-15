@@ -27,17 +27,16 @@ async def activate_subscription(payment_data, bott):
     telegram_id = payment_request.telegram_id
 
     # Создаём стейт что бы поменять состояния
-    state = FSMContext(storage=MemoryStorage(),
-                       key=StorageKey(chat_id=telegram_id, user_id=telegram_id, bot_id=bott.id))
-    await state.set_state(BuySubSteps.SUB_ACTIVATED)
+    # state = FSMContext(storage=MemoryStorage(),
+    #                    key=StorageKey(chat_id=telegram_id, user_id=telegram_id, bot_id=bott.id))
+    # await state.set_state(BuySubSteps.SUB_ACTIVATED)
 
     raw_xray_url, sub_type = await main_interface.activate_subscription(payment_data)
 
     # Не знаю как это прокрутить в тесте
     if settings.MODE in ('PROD', 'DEV'):
         await bott.send_message(telegram_id,
-                               text=success_payment,
-                               reply_markup=main_menu())
+                               text=success_payment)
 
         if sub_type == 'first_time':
             await bott.send_message(telegram_id,
@@ -45,19 +44,15 @@ async def activate_subscription(payment_data, bott):
                                    parse_mode=ParseMode.HTML)
             await bott.send_message(telegram_id,
                                    text=first_sub_activated_msg.render(),
-                                   reply_markup=main_menu())
+                                   reply_markup=main_menu_from_success_payment())
         else:
             await bott.send_message(telegram_id,
                                    text=sub_renew_msg,
-                                   reply_markup=main_menu())
+                                   reply_markup=main_menu_from_success_payment())
     # Для тестов
     else:
         if raw_xray_url:
             return xray_url.render(raw_xray_url)
-
-    # except Exception:
-    #     print('asdf')
-    #     await send_error_msg(bott, telegram_id)
 
 
 # async def stop_bot(bot: Bot):
@@ -91,7 +86,7 @@ def register_user_handlers(dp: Dispatcher):
     dp.callback_query.register(buy_subscription, BuySubSteps.PAY_SUB, F.data == 'back')
     dp.callback_query.register(buy_subscription, BuySubSteps.TRIAL, F.data == 'back')
     dp.callback_query.register(activate_trial, BuySubSteps.TRIAL, F.data == 'activate_trial')
-    dp.callback_query.register(get_main_menu, BuySubSteps.SUB_ACTIVATED, F.data == 'back')
+    # dp.callback_query.register(get_main_menu, BuySubSteps.PAY_SUB, F.data == 'main_menu')
 
     # Статистика подписки
     dp.callback_query.register(my_profile, F.data == 'my_profile')

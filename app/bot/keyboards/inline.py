@@ -25,6 +25,12 @@ def main_menu():
     keyword_builder.adjust(1)
     return keyword_builder.as_markup()
 
+def main_menu_from_success_payment():
+    keyword_builder = InlineKeyboardBuilder()
+    keyword_builder.button(text='Главное меню', callback_data='main_menu')
+    keyword_builder.adjust(1)
+    return keyword_builder.as_markup()
+
 
 def support_kb():
     keyword_builder = InlineKeyboardBuilder()
