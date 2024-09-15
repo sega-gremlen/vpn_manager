@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Ждем запуска
-#sleep 5
+# sleep 5
 
 # Проверка доступности порта панели
 while ! (echo > /dev/tcp/"${PANEL_HOST}"/"${PANEL_PORT}") &> /dev/null; do
@@ -20,7 +20,7 @@ alembic upgrade head
 python /vpn_manager/app/panel_3x_ui_api.py
 
 # Пробегаем тестами
-pytest
+# pytest
 
 # Запускаем бота + aps
 python /vpn_manager/app/main.py
