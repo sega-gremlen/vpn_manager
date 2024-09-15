@@ -1,0 +1,44 @@
+version: '3.7'
+services:
+  db:
+    image: postgres:latest
+    container_name: vpn_manager_db
+    env_file:
+      - .env
+    volumes:
+      - ./postgres_db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  panel:
+    image: ghcr.io/mhsanaei/3x-ui:latest
+    container_name: 3x-ui
+    hostname: test
+    volumes:
+      - ./panel_db:/etc/x-ui/
+    environment:
+      XRAY_VMESS_AEAD_FORCED: "false"
+      PANEL_USERNAME: ${PANEL_USERNAME}
+      PANEL_PASSWORD: ${PANEL_PASSWORD}
+    tty: true
+#    network_mode: host
+    restart: unless-stopped
+    ports:
+      - "6555:2053"
+    entrypoint: sh -c "apk add --no-cache sqlite && chmod 777 /etc/x-ui/x-ui.db && sqlite3 /etc/x-ui/x-ui.db \"UPDATE users SET username = '${PANEL_USERNAME}', password = '${PANEL_PASSWORD}' WHERE id = 1;\" && exec /app/x-ui"
+
+  vpn_manager:
+    image: vpn_manager_image
+    build:
+      context: .
+    container_name: vpn_manager_app
+    env_file:
+      - .env
+    environment:
+      PANEL_HOST: ${PANEL_HOST}
+      PANEL_PORT: ${PANEL_PORT}
+    depends_on:
+      - db
+      - panel
+    working_dir: /vpn_manager
+    command: "bash docker_commands.sh"
