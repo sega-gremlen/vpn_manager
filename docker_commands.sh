@@ -26,7 +26,7 @@ gunicorn app.notification_api:app --workers 4 --worker-class uvicorn.workers.Uvi
 # pytest
 
 # Запускаем aps + aps
-python /vpn_manager/aps.py
+python /vpn_manager/app/aps.py
 
 # Запускаем бота + aps
 python /vpn_manager/app/main.py
