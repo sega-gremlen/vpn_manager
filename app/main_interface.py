@@ -14,7 +14,7 @@ from app.db.subscriptions.dao import SubscriptionsDAO, Subscriptions
 from app.db.subscription_types.dao import SubscriptionTypes, SubscriptionTypesDAO
 from app.db.payment_requests.dao import PaymentRequestsDAO
 from app.panel_3x_ui_api import PanelApi
-from app.aps import aps
+from app.aps import *
 
 
 class MainInterface:
@@ -194,7 +194,7 @@ class MainInterface:
                 subscription = last_sub
                 sub_activation_type = sub_activation_types[1]
                 # Обновляем дату окончания в работе
-                await aps.update_traffic_reset_job_date(payment_request.telegram_id, stop)
+                await update_traffic_reset_job_date(payment_request.telegram_id, stop)
             # Если эта подписка пробная
             else:
                 # Сброс трафика в день оформления платной
@@ -214,7 +214,7 @@ class MainInterface:
                 start_date_for_periods = subscription.start
 
                 # Добавляем работу по сбросу трафика
-                await aps.add_traffic_reset_job(payment_request.telegram_id,
+                await add_traffic_reset_job(payment_request.telegram_id,
                                                   subscription.start,
                                                   subscription.stop,
                                                   30)
@@ -231,7 +231,7 @@ class MainInterface:
             start_date_for_periods = subscription.start
 
             # Добавляем работу по сбросу трафика
-            await aps.add_traffic_reset_job(payment_request.telegram_id,
+            await add_traffic_reset_job(payment_request.telegram_id,
                                             subscription.start,
                                             subscription.stop,
                                             30)
@@ -368,7 +368,7 @@ class MainInterface:
         sub_created_at = curr_period_and_sub.start_1.strftime('%d.%m.%Y %H:%M:%S') + ' МСК'
         sub_end_datetime = curr_period_and_sub.stop_1.strftime('%d.%m.%Y %H:%M:%S') + ' МСК'
 
-        job = aps.scheduler.get_job(str(user_telegram_id))
+        job = scheduler.get_job(str(user_telegram_id))
         if job:
             next_traffic_reset = job.next_run_time.strftime("%d.%m.%Y %H:%M:%S") + ' МСК'
         else:

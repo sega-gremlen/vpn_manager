@@ -1,4 +1,3 @@
-import asyncio
 import zoneinfo
 from datetime import datetime
 
@@ -11,6 +10,10 @@ from app.db.periods.models import Periods
 from app.db.users.dao import UsersDAO
 from app.panel_3x_ui_api import PanelApi
 from config import settings
+
+
+jobstores = {'default': SQLAlchemyJobStore(url=settings.get_database_url(sync=True))}
+scheduler = AsyncIOScheduler(jobstores=jobstores)
 
 
 async def traffic_reset(telegram_id):
@@ -37,126 +40,115 @@ async def subscribe_end_notification():
     """ Уведомление пользователя о скором окончании подписки """
     ...
 
+
 async def traffic_end_notification():
     """ Уведомление пользователя о скором окончании лимита трафика """
     ...
 
 
-class Aps:
-    def __init__(self):
-        jobstores = {'default': SQLAlchemyJobStore(url=settings.get_database_url(sync=True))}
-        self.scheduler = AsyncIOScheduler(jobstores=jobstores)
+async def add_traffic_reset_job(telegram_id: int,
+                                start_date: datetime,
+                                end_date: datetime,
+                                days_interval: int):
+    """ Добавление работы по перезапуску трафика для пользователя """
+
+    # Проверка на корректность даты окончания введенной работы
+    # Костыль с датами нужен для тестов, при создании триггера проставляется автоматически временная зона
+    # Поэтому временную зону нужно вставлять вручную, в этом случае сравнивать с датой без tz нельзя
+    try:
+        tz_obj = zoneinfo.ZoneInfo(key=str(end_date.tzinfo))
+        dt_now = datetime.now(tz=tz_obj)
+    except zoneinfo.ZoneInfoNotFoundError:
+        dt_now = datetime.now()
+
+    if end_date < dt_now:
+        print(f'Дата завершения работы меньше текущей даты для {telegram_id}')
+        return
+
+    job_id = str(telegram_id)
+
+    # Удаляем старую работу если вдруг такая имеется
+    job = scheduler.get_job(job_id)
+    if job:
+        scheduler.remove_job(job.id)
+
+    print(start_date)
+    print(end_date)
+    print((end_date - start_date).days)
+    print(days_interval)
+
+    trigger = IntervalTrigger(
+        days=days_interval,
+        start_date=start_date,
+        end_date=end_date
+    )
+
+    new_job = scheduler.add_job(
+        traffic_reset,
+        trigger=trigger,
+        args=[telegram_id],
+        id=job_id,
+    )
+
+    print(f'Работа по перезапуску трафика {new_job} для пользователя {telegram_id} добавлена')
 
 
-    async def add_traffic_reset_job(self, telegram_id: int,
-                                    start_date: datetime,
-                                    end_date: datetime,
-                                    days_interval: int):
-        """ Добавление работы по перезапуску трафика для пользователя """
+async def add_traffic_monitor_job():
+    """ Добавление работы по мониторингу статистики пользователей """
 
-        # Проверка на корректность даты окончания введенной работы
-        # Костыль с датами нужен для тестов, при создании триггера проставляется автоматически временная зона
-        # Поэтому временную зону нужно вставлять вручную, в этом случае сравнивать с датой без tz нельзя
-        try:
-            tz_obj = zoneinfo.ZoneInfo(key=str(end_date.tzinfo))
-            dt_now = datetime.now(tz=tz_obj)
-        except zoneinfo.ZoneInfoNotFoundError:
-            dt_now = datetime.now()
-
-        if end_date < dt_now:
-            print(f'Дата завершения работы меньше текущей даты для {telegram_id}')
-            return
-
-        job_id = str(telegram_id)
-
-        # Удаляем старую работу если вдруг такая имеется
-        job = self.scheduler.get_job(job_id)
-        if job:
-            self.scheduler.remove_job(job.id)
-
-        print(start_date)
-        print(end_date)
-        print((end_date-start_date).days)
-        print(days_interval)
-
-        trigger = IntervalTrigger(
-            days=days_interval,
-            start_date=start_date,
-            end_date=end_date
+    if not scheduler.get_job('traffic_monitor'):
+        scheduler.add_job(
+            traffic_monitor_job,
+            'interval',
+            seconds=60,
+            id='traffic_monitor'
         )
-
-        new_job = self.scheduler.add_job(
-            traffic_reset,
-            trigger=trigger,
-            args=[telegram_id],
-            id=job_id,
-        )
-
-        print(f'Работа по перезапуску трафика {new_job} для пользователя {telegram_id} добавлена')
+        print('Работа по мониторингу статистики пользователей добавлена')
 
 
-    async def add_traffic_monitor_job(self):
-        """ Добавление работы по мониторингу статистики пользователей """
+async def my_jobs(self):
+    """ Вывести список текущих работ """
 
-        if not self.scheduler.get_job('traffic_monitor'):
-            self.scheduler.add_job(
-                traffic_monitor_job,
-                'interval',
-                seconds=60,
-                id='traffic_monitor'
-            )
-            print('Работа по мониторингу статистики пользователей добавлена')
-
-
-    async def my_jobs(self):
-        """ Вывести список текущих работ """
-
-        for job in self.scheduler.get_jobs():
-            start_date = job.trigger.start_date
-            end_date = job.trigger.end_date
-            next_run_time = job.next_run_time
-            instances = job.max_instances
-            print(f'{job.name} for {job.id}\n'
-                  f'start date: {start_date},\n'
-                  f'end date: {end_date}\n'
-                  f'next_execute: {next_run_time}\n'
-                  f'instances: {instances}\n---------')
+    for job in self.scheduler.get_jobs():
+        start_date = job.trigger.start_date
+        end_date = job.trigger.end_date
+        next_run_time = job.next_run_time
+        instances = job.max_instances
+        print(f'{job.name} for {job.id}\n'
+              f'start date: {start_date},\n'
+              f'end date: {end_date}\n'
+              f'next_execute: {next_run_time}\n'
+              f'instances: {instances}\n---------')
 
 
-    async def update_traffic_reset_job_date(self, telegram_id, new_end_date):
-        """ Вывод информации о конкретной работе """
+async def update_traffic_reset_job_date(telegram_id, new_end_date):
+    """ Вывод информации о конкретной работе """
 
-        job_trigger = self.scheduler.get_job(str(telegram_id)).trigger
-        print('интервал', job_trigger.interval.days)
-        new_trigger = IntervalTrigger(
-            days=job_trigger.interval.days,
-            start_date=job_trigger.start_date,
-            end_date=new_end_date
-        )
-        self.scheduler.modify_job(str(telegram_id), trigger=new_trigger)
+    job_trigger = self.scheduler.get_job(str(telegram_id)).trigger
+    print('интервал', job_trigger.interval.days)
+    new_trigger = IntervalTrigger(
+        days=job_trigger.interval.days,
+        start_date=job_trigger.start_date,
+        end_date=new_end_date
+    )
+    self.scheduler.modify_job(str(telegram_id), trigger=new_trigger)
 
-        print(f'Работа по обновлению трафика для пользователя {telegram_id} обновлена')
+    print(f'Работа по обновлению трафика для пользователя {telegram_id} обновлена')
 
 
 
-    # async def geeeet(self):
-    #     self.scheduler.get_job()
+# async def geeeet(self):
+#     self.scheduler.get_job()
 
 
 
-    async def pause_traffic_monitor(self):
-        """ Пауза Aps """
+async def pause_traffic_monitor(self):
+    """ Пауза Aps """
 
-        self.scheduler.pause()
-        print('Остановили мониторинг')
+    self.scheduler.pause()
+    print('Остановили мониторинг')
 
-
-aps = Aps()
 
 
 if __name__ == '__main__':
-    async def main():
-        aps.scheduler.start()
-        await asyncio.sleep(500)
-
-    asyncio.run(main())
+    ...
