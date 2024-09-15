@@ -36,7 +36,7 @@ async def activate_subscription(payment_data, bott):
     # Не знаю как это прокрутить в тесте
     if settings.MODE in ('PROD', 'DEV'):
         await bott.send_message(telegram_id,
-                               text=success_payment.render(),
+                               text=success_payment,
                                reply_markup=main_menu())
 
         if sub_type == 'first_time':
@@ -48,7 +48,7 @@ async def activate_subscription(payment_data, bott):
                                    reply_markup=main_menu())
         else:
             await bott.send_message(telegram_id,
-                                   text=sub_renew_msg.render(),
+                                   text=sub_renew_msg,
                                    reply_markup=main_menu())
     # Для тестов
     else:

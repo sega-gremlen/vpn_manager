@@ -40,7 +40,7 @@ async def buy_subscription(call: CallbackQuery, state: FSMContext):
     sub_prices = await SubscriptionTypesDAO().find_all_by_filter()
     sub_prices = [(i['name'], i['price'], i['duration']) for i in sub_prices]
     user: Users = await UsersDAO.find_one_or_none(telegram_id=call.from_user.id)
-    return await call.message.edit_text(buy_subscription_tm.render(),
+    return await call.message.edit_text(buy_subscription_tm,
                                  reply_markup=periods_value_kb(sub_prices,
                                                                user.trial_wasted))
 

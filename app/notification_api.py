@@ -2,7 +2,7 @@ from datetime import datetime as dt
 from typing import Annotated
 import os
 
-from fastapi import FastAPI, Form, HTTPException, status
+from fastapi import FastAPI, Form, HTTPException, status, Response
 from starlette.requests import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
@@ -66,6 +66,7 @@ async def get_payment(
         print('Перед активацией')
         # Не знаю как это прокрутить в тесте
         await activate_subscription(payment_data, bot)
+        return Response(status_code=200)
     else:
         return payment_data
 
