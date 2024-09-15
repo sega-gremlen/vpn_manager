@@ -70,9 +70,14 @@ class Aps:
         job_id = str(telegram_id)
 
         # Удаляем старую работу если вдруг такая имеется
-        job = aps.scheduler.get_job(job_id)
+        job = self.scheduler.get_job(job_id)
         if job:
-            aps.scheduler.remove_job(job.id)
+            self.scheduler.remove_job(job.id)
+
+        print(start_date)
+        print(end_date)
+        print((end_date-start_date).days)
+        print(days_interval)
 
         trigger = IntervalTrigger(
             days=days_interval,
@@ -80,14 +85,14 @@ class Aps:
             end_date=end_date
         )
 
-        aps.scheduler.add_job(
+        new_job = self.scheduler.add_job(
             traffic_reset,
             trigger=trigger,
             args=[telegram_id],
             id=job_id,
         )
 
-        print(f'Работа по перезапуску трафика для пользователя {telegram_id} добавлена')
+        print(f'Работа по перезапуску трафика {new_job} для пользователя {telegram_id} добавлена')
 
 
     async def add_traffic_monitor_job(self):
