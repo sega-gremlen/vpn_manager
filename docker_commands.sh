@@ -20,7 +20,7 @@ alembic upgrade head
 python /vpn_manager/app/panel_3x_ui_api.py
 
 # Запускаем fastapi
-gunicorn app.notification_api:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 &
+#gunicorn app.notification_api:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 &
 
 # Пробегаем тестами
 # pytest
