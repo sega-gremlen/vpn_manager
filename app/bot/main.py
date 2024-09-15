@@ -1,23 +1,13 @@
-from app.db.payment_requests.dao import PaymentRequestsDAO
-from config import settings
-
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.bot import DefaultBotProperties
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
+
 from app.bot.handlers.user import *
-
 from app.main_interface import main_interface
-
 from app.bot.utils.jinja_templates import error_message, success_payment, xray_url, sub_renew_msg
-
 from app.bot.handlers.admin import *
-
 from app.bot.keyboards.inline import main_menu
-
-
-
-from aiogram.filters import Command
-
+from app.db.payment_requests.dao import PaymentRequestsDAO
 
 
 bot = Bot(token=settings.BOT_TOKEN,
@@ -29,9 +19,11 @@ async def send_error_msg(bott, telegram_id):
 
 
 async def activate_subscription(payment_data, bott, state: FSMContext):
+    print('Зашли в активацию')
     payment_request: PaymentRequests = await PaymentRequestsDAO.find_one_or_none(
         label=payment_data['label']
     )
+    print('Добавили payment_request')
     telegram_id = payment_request.telegram_id
     await state.set_state(BuySubSteps.SUB_ACTIVATED)
     raw_xray_url, sub_type = await main_interface.activate_subscription(payment_data)

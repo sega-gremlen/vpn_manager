@@ -8,6 +8,7 @@ from app.aps import aps
 
 async def start():
     try:
+        logging.basicConfig(level=logging.INFO)
         await dp.start_polling(bot)
         await set_commands(bot)
         aps.scheduler.start()
