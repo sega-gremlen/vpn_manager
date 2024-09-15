@@ -171,7 +171,7 @@ profile_stat = Template("""
 
 <b>Трафик</b>
 • Расход за период
-{{ period_value }}/ {{ traffic_limit }} Гб.
+{{ period_value }}/{{ traffic_limit }} Гб.
 • Следующий сброс
 {{ next_traffic_reset }}
 """)
