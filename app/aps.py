@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import zoneinfo
 from datetime import datetime
@@ -152,4 +153,4 @@ async def pause_traffic_monitor(self):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     scheduler.start()
-    add_traffic_monitor_job()
+    asyncio.run(add_traffic_monitor_job())
