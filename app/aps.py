@@ -1,3 +1,4 @@
+import logging
 import zoneinfo
 from datetime import datetime
 
@@ -124,22 +125,20 @@ async def my_jobs(self):
 async def update_traffic_reset_job_date(telegram_id, new_end_date):
     """ Вывод информации о конкретной работе """
 
-    job_trigger = self.scheduler.get_job(str(telegram_id)).trigger
+    job_trigger = scheduler.get_job(str(telegram_id)).trigger
     print('интервал', job_trigger.interval.days)
     new_trigger = IntervalTrigger(
         days=job_trigger.interval.days,
         start_date=job_trigger.start_date,
         end_date=new_end_date
     )
-    self.scheduler.modify_job(str(telegram_id), trigger=new_trigger)
+    scheduler.modify_job(str(telegram_id), trigger=new_trigger)
 
     print(f'Работа по обновлению трафика для пользователя {telegram_id} обновлена')
 
 
-
 # async def geeeet(self):
 #     self.scheduler.get_job()
-
 
 
 async def pause_traffic_monitor(self):
@@ -151,4 +150,6 @@ async def pause_traffic_monitor(self):
 
 
 if __name__ == '__main__':
-    ...
+    logging.basicConfig(level=logging.INFO)
+    scheduler.start()
+    add_traffic_monitor_job()

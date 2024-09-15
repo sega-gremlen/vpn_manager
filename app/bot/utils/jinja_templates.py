@@ -25,7 +25,7 @@ buy_subscription_tm = """
 error_message = "Что-то пошло не так, обратитесь в поддержку"
 
 sub_activity_info = Template("""
-Подписка будет активна до {{ stop_date }} МСК'
+Подписка будет активна до {{ stop_date }} МСК
 """)
 
 
