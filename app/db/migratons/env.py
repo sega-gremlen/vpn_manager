@@ -12,18 +12,18 @@ sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 from app.db.users.models import Users
 from app.db.payments.models import Payments
 from app.db.subscriptions.models import Subscriptions
-from app.db.subscribe_types.models import SubscriptionTypes
-from app.db.traffics.models import Traffics
+from app.db.subscription_types.models import SubscriptionTypes
 from app.db.periods.models import Periods
 from app.db.payment_requests.models import PaymentRequests
 
-from app.db.creator import Base, DATABASE_URL
+from app.db.creator import Base
+from config import settings
 
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option('sqlalchemy.url', f'{DATABASE_URL}?async_fallback=True')
+config.set_main_option('sqlalchemy.url', f'{settings.get_database_url()}?async_fallback=True')
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

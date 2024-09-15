@@ -1,33 +1,33 @@
-from datetime import date
+from sqlalchemy import select, desc
 
 from app.db.subscriptions.models import Subscriptions
 from app.db.dao.base import BaseDAO
-
-from sqlalchemy import select
 from app.db.creator import async_sessionmaker
+from app.db.users.models import Users
 
 
 class SubscriptionsDAO(BaseDAO):
     model = Subscriptions
 
-    async def find_last_subscription(self, user_id):
+    @classmethod
+    async def find_last_subscription_by_user_id(cls, user_id):
+        """ Найти последнюю подписку по бд-id пользователя """
+
         async with async_sessionmaker() as session:
-            querry = session.query(self.model).filter_by(user_id=user_id).all()
-            result = await session.execute(querry)
-            return result.scalar_one_or_none()
+            query = select(cls.model).filter_by(user_id=user_id).order_by(desc(cls.model.id))
+            result = await session.execute(query)
+            return result.scalars().first()
 
-    # async def find_current_subscription(self, user_id):
-    #     async with async_sessionmaker() as session:
-    #
-    #         subscription = select(self.model).filter(
-    #             date.today() <= self.model.stop,
-    #             date.today() >= self.model.start,
-    #             Subscriptions.user_id == user_id,
-    #         )
-    #         subscription = await session.execute(subscription)
-    #         return subscription.scalars()
+    @classmethod
+    async def find_last_sub_by_user_tg_id(cls, tg_id):
+        """ Найти последнюю подписку по tg-id пользователя """
 
-
-if __name__ == '__main__':
-    import asyncio
-    asyncio.run(SubscriptionsDAO().find_current_subscription(1))
+        async with async_sessionmaker() as session:
+            query = select(cls.model).join(
+                Users, Users.id == cls.model.user_id
+            ).filter(Users.telegram_id==tg_id).order_by(cls.model.id.desc())
+            result = await session.execute(query)
+            if result:
+                return result.scalars().first()
+            else:
+                return None

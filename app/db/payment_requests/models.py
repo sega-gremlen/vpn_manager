@@ -1,13 +1,10 @@
-from datetime import datetime, date
-from pprint import pprint
+from datetime import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import UUID, Column, Identity, ForeignKey
-
+from sqlalchemy import Identity, ForeignKey, BigInteger
 
 from app.db.creator import Base
-from app.db.subscribe_types.models import SubscriptionTypes
-from app.db.users.models import Users
+
 
 
 class PaymentRequests(Base):
@@ -15,12 +12,12 @@ class PaymentRequests(Base):
 
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    telegram_id: Mapped[str] = mapped_column()
-    label: Mapped[str] = mapped_column()
+    telegram_id: Mapped[int] = mapped_column(BigInteger)
+    label: Mapped[str] = mapped_column(unique=True)
     created_at: Mapped[datetime] = mapped_column()
     stop_at: Mapped[datetime] = mapped_column()
     periods: Mapped[int] = mapped_column()
-    subscription_type: Mapped[str] = mapped_column(ForeignKey('subscription_types.name'))
+    subscription_type_id: Mapped[int] = mapped_column(ForeignKey('subscription_types.id'))
     completed: Mapped[bool] = mapped_column(default=False)
     redirect_url: Mapped[str] = mapped_column()
 

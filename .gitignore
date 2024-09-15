@@ -3,3 +3,5 @@ venv
 .env
 .idea
 .git
+panel_db
+postgres_db
