@@ -363,7 +363,7 @@ class MainInterface:
 
         # Выдаёт join таблицы: Periods, Subscriptions
         curr_period_and_sub = await PeriodsDAO.find_current_period_sub(user_telegram_id)
-        user_traffic = await PanelApi.get_client_traffics_with_email(user_telegram_id) / 1024 ** 3
+        user_traffic = round(await PanelApi.get_client_traffics_with_email(user_telegram_id) / 1024 ** 3, 2)
 
         sub_created_at = curr_period_and_sub.start_1.strftime('%d.%m.%Y %H:%M:%S') + ' МСК'
         sub_end_datetime = curr_period_and_sub.stop_1.strftime('%d.%m.%Y %H:%M:%S') + ' МСК'
