@@ -1,6 +1,8 @@
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.filters import CommandStart, Command
+from aiogram.fsm.storage.base import StorageKey
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from app.bot.handlers.user import *
 from app.main_interface import main_interface
@@ -18,14 +20,17 @@ async def send_error_msg(bott, telegram_id):
     await bott.send_message(telegram_id, text=error_message)
 
 
-async def activate_subscription(payment_data, bott, state: FSMContext):
-    print('Зашли в активацию')
+async def activate_subscription(payment_data, bott):
     payment_request: PaymentRequests = await PaymentRequestsDAO.find_one_or_none(
         label=payment_data['label']
     )
-    print('Добавили payment_request')
     telegram_id = payment_request.telegram_id
+
+    # Создаём стейт что бы поменять состояния
+    state = FSMContext(storage=MemoryStorage(),
+                       key=StorageKey(chat_id=telegram_id, user_id=telegram_id, bot_id=bott.id))
     await state.set_state(BuySubSteps.SUB_ACTIVATED)
+
     raw_xray_url, sub_type = await main_interface.activate_subscription(payment_data)
 
     # Не знаю как это прокрутить в тесте
@@ -68,8 +73,8 @@ async def activate_subscription(payment_data, bott, state: FSMContext):
 #     await ret
 #
 
-
 dp = Dispatcher()
+
 
 def register_user_handlers(dp: Dispatcher):
 
@@ -127,7 +132,6 @@ def register_user_handlers(dp: Dispatcher):
     # Старт/Главное меню
     dp.message.register(get_main_menu, CommandStart())
     dp.message.register(get_main_menu)
-    # dp.message.register(get_main_menu, '/start')
     dp.callback_query.register(get_main_menu, F.data == 'back')
     dp.callback_query.register(get_main_menu, F.data == 'main_menu')
 
@@ -140,4 +144,3 @@ def register_user_handlers(dp: Dispatcher):
 
 
 register_user_handlers(dp)
-
