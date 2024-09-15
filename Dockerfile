@@ -1,6 +1,6 @@
 FROM python:3.12
 
-RUN mkdir /vpn_manager
+#RUN mkdir /vpn_manager
 
 WORKDIR /vpn_manager
 
