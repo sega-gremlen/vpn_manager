@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime as dt
 from typing import Annotated
 import os
@@ -8,13 +9,15 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 import uvicorn
 
-from app.bot.utils.statesform import BuySubSteps
+# from app.bot.utils.statesform import BuySubSteps
 from app.db.payment_requests.models import PaymentRequests
 from app.db.payment_requests.dao import PaymentRequestsDAO
 from app.main_interface import main_interface
 from config import settings
 from app.bot.main import activate_subscription, send_error_msg
 from app.bot.main import bot
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -71,7 +74,8 @@ async def get_payment(
 
 @app.post("/test")
 async def test():
-    await activate_subscription('test', bot)
+    logger.info('поолучил test')
+    await activate_subscription('test')
     return Response(status_code=200)
 
 
