@@ -69,6 +69,11 @@ async def get_payment(
     else:
         return payment_data
 
+@app.post("/test")
+async def test():
+    await activate_subscription('test', bot)
+    return Response(status_code=200)
+
 
 @app.get("/redirect/{label}")
 async def create_proxy_url(request: Request, label: str):

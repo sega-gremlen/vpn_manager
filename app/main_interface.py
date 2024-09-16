@@ -1,20 +1,19 @@
 import uuid
 import hashlib
-from datetime import datetime, timedelta
 
 import requests
 
 from app.db.dao.base import BaseDAO
 from app.db.payment_requests.models import PaymentRequests
 from app.db.payments.dao import PaymentsDAO
-from config import settings
-from app.db.periods.dao import PeriodsDAO
-from app.db.users.dao import UsersDAO, Users
+
+from app.db.users.dao import Users
 from app.db.subscriptions.dao import SubscriptionsDAO, Subscriptions
 from app.db.subscription_types.dao import SubscriptionTypes, SubscriptionTypesDAO
 from app.db.payment_requests.dao import PaymentRequestsDAO
-from app.panel_3x_ui_api import PanelApi
 from app.aps import *
+
+logger = logging.getLogger(__name__)
 
 
 class MainInterface:
@@ -94,6 +93,14 @@ class MainInterface:
                 stop=stop,
             )
 
+    @staticmethod
+    async def test_create_job():
+        logger.info('test_create_job')
+        dt_now = datetime.now()
+        await add_traffic_reset_job(123,
+                                    dt_now,
+                                    dt_now + timedelta(days=30),
+                                    30)
 
     @staticmethod
     async def create_payment(subscription_id, user_id, created_at, payment_data):

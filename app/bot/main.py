@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.filters import CommandStart, Command
@@ -11,6 +13,8 @@ from app.bot.handlers.admin import *
 from app.bot.keyboards.inline import main_menu
 from app.db.payment_requests.dao import PaymentRequestsDAO
 
+logger = logging.getLogger(__name__)
+
 
 bot = Bot(token=settings.BOT_TOKEN,
           default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -20,7 +24,13 @@ async def send_error_msg(bott, telegram_id):
     await bott.send_message(telegram_id, text=error_message)
 
 
-async def activate_subscription(payment_data, bott):
+async def activate_subscription(payment_data, bott=bot):
+    logger.info('activate_subscription')
+    if payment_data == 'test':
+        logger.info('test')
+        await main_interface.test_create_job()
+        return
+
     payment_request: PaymentRequests = await PaymentRequestsDAO.find_one_or_none(
         label=payment_data['label']
     )

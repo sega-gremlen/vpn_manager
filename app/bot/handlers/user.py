@@ -1,10 +1,10 @@
 from datetime import timedelta, datetime
 
+import requests
 from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery, Message
 
-from app.aps import add_traffic_reset_job
 from app.bot.utils.statesform import BuySubSteps, Instructions, MyProfile
 from aiogram.fsm.context import FSMContext
 
@@ -97,6 +97,8 @@ async def wait_for_payment(call: CallbackQuery):
 
 # -------------------- Статистика подписки --------------------
 async def my_profile(call: CallbackQuery, state: FSMContext):
+    response = requests.post(f'http://{settings.MAIN_HOST}/test')
+
     await state.set_state(MyProfile.GET_INSIDE)
     await call.answer()
     telegram_id = call.from_user.id
