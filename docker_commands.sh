@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Ждем запуска
-# sleep 5
-
 # Проверка доступности порта панели
 while ! (echo > /dev/tcp/"${PANEL_HOST}"/"${PANEL_PORT}") &> /dev/null; do
   echo "Waiting for ${PANEL_HOST}:${PANEL_PORT} to be ready..."
@@ -25,8 +22,5 @@ gunicorn app.notification_api:app --workers 4 --worker-class uvicorn.workers.Uvi
 # Пробегаем тестами
 # pytest
 
-# Запускаем aps
-python /vpn_manager/app/aps.py
-
-# Запускаем aps
+# Запускаем aps и бота
 python /vpn_manager/app/main.py

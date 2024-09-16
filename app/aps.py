@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import zoneinfo
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -13,9 +13,16 @@ from app.db.users.dao import UsersDAO
 from app.panel_3x_ui_api import PanelApi
 from config import settings
 
+logger = logging.getLogger(__name__)  # Логгер для текущего модуля/файла
+
 
 jobstores = {'default': SQLAlchemyJobStore(url=settings.get_database_url(sync=True))}
 scheduler = AsyncIOScheduler(jobstores=jobstores)
+
+
+async def start_scheduler():
+    scheduler.start()
+    await add_traffic_monitor_job()
 
 
 async def traffic_reset(telegram_id):
@@ -64,20 +71,15 @@ async def add_traffic_reset_job(telegram_id: int,
         dt_now = datetime.now()
 
     if end_date < dt_now:
-        print(f'Дата завершения работы меньше текущей даты для {telegram_id}')
+        logger.info(f'Дата завершения работы меньше текущей даты для {telegram_id}')
         return
 
-    job_id = str(telegram_id)
+    job_id = f'trf_reset_{telegram_id}'
 
     # Удаляем старую работу если вдруг такая имеется
     job = scheduler.get_job(job_id)
     if job:
         scheduler.remove_job(job.id)
-
-    print(start_date)
-    print(end_date)
-    print((end_date - start_date).days)
-    print(days_interval)
 
     trigger = IntervalTrigger(
         days=days_interval,
@@ -92,7 +94,7 @@ async def add_traffic_reset_job(telegram_id: int,
         id=job_id,
     )
 
-    print(f'Работа по перезапуску трафика {new_job} для пользователя {telegram_id} добавлена')
+    logger.info(f'Работа по перезапуску трафика {new_job} для пользователя {telegram_id} добавлена')
 
 
 async def add_traffic_monitor_job():
@@ -105,7 +107,7 @@ async def add_traffic_monitor_job():
             seconds=60,
             id='traffic_monitor'
         )
-        print('Работа по мониторингу статистики пользователей добавлена')
+        logger.info('Работа по мониторингу статистики пользователей добавлена')
 
 
 async def my_jobs(self):
@@ -116,18 +118,18 @@ async def my_jobs(self):
         end_date = job.trigger.end_date
         next_run_time = job.next_run_time
         instances = job.max_instances
-        print(f'{job.name} for {job.id}\n'
-              f'start date: {start_date},\n'
-              f'end date: {end_date}\n'
-              f'next_execute: {next_run_time}\n'
-              f'instances: {instances}\n---------')
+        logger.info(f'{job.name} for {job.id}\n'
+                    f'start date: {start_date},\n'
+                    f'end date: {end_date}\n'
+                    f'next_execute: {next_run_time}\n'
+                    f'instances: {instances}\n---------')
 
 
 async def update_traffic_reset_job_date(telegram_id, new_end_date):
     """ Вывод информации о конкретной работе """
 
     job_trigger = scheduler.get_job(str(telegram_id)).trigger
-    print('интервал', job_trigger.interval.days)
+    logger.info('интервал', job_trigger.interval.days)
     new_trigger = IntervalTrigger(
         days=job_trigger.interval.days,
         start_date=job_trigger.start_date,
@@ -138,19 +140,8 @@ async def update_traffic_reset_job_date(telegram_id, new_end_date):
     print(f'Работа по обновлению трафика для пользователя {telegram_id} обновлена')
 
 
-# async def geeeet(self):
-#     self.scheduler.get_job()
-
-
 async def pause_traffic_monitor(self):
     """ Пауза Aps """
 
     self.scheduler.pause()
-    print('Остановили мониторинг')
-
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    scheduler.start()
-    asyncio.run(add_traffic_monitor_job())
+    logger.info('Остановили мониторинг')

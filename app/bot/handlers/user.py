@@ -3,6 +3,8 @@ from datetime import timedelta, datetime
 from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery, Message
+
+from app.aps import add_traffic_reset_job
 from app.bot.utils.statesform import BuySubSteps, Instructions, MyProfile
 from aiogram.fsm.context import FSMContext
 
@@ -96,6 +98,7 @@ async def wait_for_payment(call: CallbackQuery):
 # -------------------- Статистика подписки --------------------
 async def my_profile(call: CallbackQuery, state: FSMContext):
     await state.set_state(MyProfile.GET_INSIDE)
+    await call.answer()
     telegram_id = call.from_user.id
     if await main_interface.get_active_subscription(telegram_id):
         user_stat = await main_interface.get_user_stat(telegram_id)
@@ -107,6 +110,7 @@ async def my_profile(call: CallbackQuery, state: FSMContext):
 
 
 async def show_url_conf(call: CallbackQuery, state: FSMContext):
+    await call.answer()
     await state.set_state(MyProfile.GET_URL)
     user: Users = await UsersDAO.find_one_or_none(telegram_id=call.from_user.id)
     conf_url = await main_interface.render_xray_url(user.xray_uuid)
