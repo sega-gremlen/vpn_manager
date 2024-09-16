@@ -97,7 +97,7 @@ async def wait_for_payment(call: CallbackQuery):
 
 # -------------------- Статистика подписки --------------------
 async def my_profile(call: CallbackQuery, state: FSMContext):
-    response = requests.post(f'http://127.0.0.1/test')
+    response = requests.post(f'http://127.0.0.1:8000/test')
     logger.info(response)
 
     await state.set_state(MyProfile.GET_INSIDE)
