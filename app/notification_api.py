@@ -9,7 +9,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 import uvicorn
 
-# from app.bot.utils.statesform import BuySubSteps
 from app.db.payment_requests.models import PaymentRequests
 from app.db.payment_requests.dao import PaymentRequestsDAO
 from app.main_interface import main_interface
@@ -19,6 +18,7 @@ from app.bot.main import bot
 
 
 app = FastAPI()
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Шаблоны для ответов на редирект ссылке
@@ -48,6 +48,8 @@ async def get_payment(
 ):
     """ Получение уведомления об оплате """
 
+    logger.info(f'Получили оплату, payment_request: {label}')
+
     payment_data = {
         'bill_id': bill_id,
         'operation_label': operation_label,
@@ -74,13 +76,6 @@ async def get_payment(
     else:
         return payment_data
 
-@app.post("/test")
-async def test():
-    logger.info('жопа')
-    logger.info('поолучил test')
-    await activate_subscription('test')
-    return Response(status_code=200)
-
 
 @app.get("/redirect/{label}")
 async def create_proxy_url(request: Request, label: str):
@@ -93,6 +88,7 @@ async def create_proxy_url(request: Request, label: str):
 
     # Если нет label в бд
     if payment_request is None:
+        logger.info('Нет label в бд')
         return api_templates.TemplateResponse(
             request=request,
             name='label_not_found.html',
@@ -101,6 +97,7 @@ async def create_proxy_url(request: Request, label: str):
 
     # Если уже оплачено
     if payment_request.completed:
+        logger.info('Уже оплачено')
         await send_error_msg(bot, payment_request.telegram_id) if settings.MODE in ('DEV', 'PROD') else ...
         return api_templates.TemplateResponse(
             request=request,
@@ -110,6 +107,7 @@ async def create_proxy_url(request: Request, label: str):
 
     # Если время истекло
     if payment_request.stop_at < dt.now():
+        logger.info('Время истекло')
         await send_error_msg(bot, payment_request.telegram_id) if settings.MODE in ('DEV', 'PROD') else ...
         return api_templates.TemplateResponse(
             request=request,
@@ -121,6 +119,7 @@ async def create_proxy_url(request: Request, label: str):
     last_payment_request: PaymentRequests = await PaymentRequestsDAO().find_last_payment_request(
         payment_request.user_id)
     if payment_request.id != last_payment_request.id:
+        logger.info('Существует более новая ссылка')
         await send_error_msg(bot, payment_request.telegram_id) if settings.MODE in ('DEV', 'PROD') else ...
         return api_templates.TemplateResponse(
             request=request,
@@ -129,11 +128,3 @@ async def create_proxy_url(request: Request, label: str):
         )
 
     return RedirectResponse(url=payment_request.redirect_url)
-
-
-def start_fast_api():
-    uvicorn.run("app.notification_api:app", host=settings.NOTI_HOST, port=settings.NOTI_PORT, reload=True)
-
-
-if __name__ == '__main__':
-    start_fast_api()

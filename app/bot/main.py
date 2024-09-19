@@ -1,5 +1,3 @@
-import logging
-
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.filters import CommandStart, Command
@@ -9,8 +7,7 @@ from app.main_interface import main_interface
 from app.bot.utils.jinja_templates import error_message, success_payment, xray_url, sub_renew_msg
 from app.bot.handlers.admin import *
 from app.db.payment_requests.dao import PaymentRequestsDAO
-
-logger = logging.getLogger(__name__)
+from app.notification_api import logger
 
 
 bot = Bot(token=settings.BOT_TOKEN,
@@ -18,7 +15,9 @@ bot = Bot(token=settings.BOT_TOKEN,
 
 
 async def send_error_msg(bott, telegram_id):
-    await bott.send_message(telegram_id, text=error_message)
+    await bott.send_message(telegram_id,
+                            text=error_message,
+                            reply_markup=support_kb())
 
 
 async def activate_subscription(payment_data, bott=bot):

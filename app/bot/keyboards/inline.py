@@ -34,9 +34,8 @@ def main_menu_from_success_payment():
 
 def support_kb():
     keyword_builder = InlineKeyboardBuilder()
-    keyword_builder.button(text='Чат с поддержкой', url=settings.SUPPORT_ID)
-    keyword_builder.button(text='Повторить попытку', callback_data='repeat')
-    keyword_builder.button(text='Главное меню', callback_data='back')
+    keyword_builder.button(text='Чат с техподдержкой', url=settings.SUPPORT_ID)
+    keyword_builder.button(text='Главное меню', callback_data='main_menu')
     keyword_builder.adjust(1)
     return keyword_builder.as_markup()
 
