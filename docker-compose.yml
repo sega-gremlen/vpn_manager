@@ -39,7 +39,7 @@ services:
     ports:
       - "37778:2053"
       - "37465:37465"
-    entrypoint: sh -c "apk update && apk upgrade && apk add --no-cache sqlite && exec /app/x-ui && chmod 777 /etc/x-ui/x-ui.db && sqlite3 /etc/x-ui/x-ui.db \"UPDATE users SET username = '${PANEL_USERNAME}', password = '${PANEL_PASSWORD}' WHERE id = 1;\""
+    entrypoint: sh -c "apk update && apk upgrade && apk add --no-cache sqlite && chmod 777 /etc/x-ui/x-ui.db && sqlite3 /etc/x-ui/x-ui.db \"UPDATE users SET username = '${PANEL_USERNAME}', password = '${PANEL_PASSWORD}' WHERE id = 1;\" && exec /app/x-ui"
 
   vpn_manager:
     image: vpn_manager_image
