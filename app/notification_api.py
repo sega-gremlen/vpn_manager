@@ -7,7 +7,7 @@ from fastapi import FastAPI, Form, HTTPException, status, Response
 from starlette.requests import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
-import uvicorn
+# import uvicorn
 
 from app.db.payment_requests.models import PaymentRequests
 from app.db.payment_requests.dao import PaymentRequestsDAO

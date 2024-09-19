@@ -7,20 +7,23 @@ from app.main_interface import main_interface
 from app.bot.utils.jinja_templates import error_message, success_payment, xray_url, sub_renew_msg
 from app.bot.handlers.admin import *
 from app.db.payment_requests.dao import PaymentRequestsDAO
-from app.notification_api import logger
 
 
 bot = Bot(token=settings.BOT_TOKEN,
           default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 async def send_error_msg(bott, telegram_id):
+    logger.info('Запущен хендлер send_error_msg')
     await bott.send_message(telegram_id,
                             text=error_message,
                             reply_markup=support_kb())
 
 
 async def activate_subscription(payment_data, bott=bot):
+    logger.info('Запущен хендлер activate_subscription')
     payment_request: PaymentRequests = await PaymentRequestsDAO.find_one_or_none(
         label=payment_data['label']
     )
