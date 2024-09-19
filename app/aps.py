@@ -128,7 +128,7 @@ async def my_jobs(self):
 
 async def update_traffic_reset_job_date(telegram_id, new_end_date):
     """ Вывод информации о конкретной работе """
-
+    scheduler.start()
     job_id = f'trf_reset_{telegram_id}'
     job_trigger = scheduler.get_job(job_id).trigger
     new_trigger = IntervalTrigger(
@@ -137,6 +137,7 @@ async def update_traffic_reset_job_date(telegram_id, new_end_date):
         end_date=new_end_date
     )
     scheduler.modify_job(job_id, trigger=new_trigger)
+    scheduler.shutdown()
     print(f'Работа по обновлению трафика для пользователя {telegram_id} обновлена')
 
 
