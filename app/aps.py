@@ -69,10 +69,13 @@ async def add_traffic_reset_job(telegram_id: int,
         dt_now = datetime.now()
 
     if end_date < dt_now:
-        print(f'Дата завершения работы меньше текущей даты для {telegram_id}')
+        logger.info(f'Дата завершения работы меньше текущей даты для {telegram_id}')
         return
 
     job_id = f'trf_reset_{telegram_id}'
+
+    # Старт и стоп потому что этот поток запускается отдельно (??)
+    scheduler.start()
 
     # Удаляем старую работу если вдруг такая имеется
     job = scheduler.get_job(job_id)
@@ -85,8 +88,8 @@ async def add_traffic_reset_job(telegram_id: int,
         end_date=end_date
     )
 
-    # Старт и стоп потому что этот поток запускается отдельно
-    scheduler.start()
+
+
     new_job = scheduler.add_job(
         traffic_reset,
         trigger=trigger,
@@ -139,7 +142,8 @@ async def update_traffic_reset_job_date(telegram_id, new_end_date):
     )
     scheduler.modify_job(job_id, trigger=new_trigger)
     scheduler.shutdown()
-    print(f'Работа по обновлению трафика для пользователя {telegram_id} обновлена')
+    logger.info(f'Работа по обновлению трафика для пользователя {telegram_id} выполнена'
+                f'Новая дата окончания {new_end_date}')
 
 
 async def pause_traffic_monitor(self):
