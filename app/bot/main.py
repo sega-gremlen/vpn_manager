@@ -38,11 +38,10 @@ async def activate_subscription(payment_data, bott=bot):
 
         if sub_type == 'first_time':
             await bott.send_message(telegram_id,
-                                   text=xray_url.render(raw_xray_url),
-                                   parse_mode=ParseMode.HTML)
-            await bott.send_message(telegram_id,
-                                   text=first_sub_activated_msg,
-                                   reply_markup=main_menu_from_success_payment())
+                                    text=xray_url.render(raw_xray_url) + '\n' + first_sub_activated_msg,
+                                    parse_mode=ParseMode.HTML,
+                                    reply_markup=main_menu_from_success_payment())
+
         else:
             await bott.send_message(telegram_id,
                                    text=sub_renew_msg,
