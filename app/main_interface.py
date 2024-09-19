@@ -374,7 +374,7 @@ class MainInterface:
         sub_created_at = curr_period_and_sub.start_1.strftime('%d.%m.%Y %H:%M:%S') + ' МСК'
         sub_end_datetime = curr_period_and_sub.stop_1.strftime('%d.%m.%Y %H:%M:%S') + ' МСК'
 
-        job = scheduler.get_job(str(user_telegram_id))
+        job = scheduler.get_job(f'trf_reset_{user_telegram_id}')
         if job:
             next_traffic_reset = job.next_run_time.strftime("%d.%m.%Y %H:%M:%S") + ' МСК'
         else:
