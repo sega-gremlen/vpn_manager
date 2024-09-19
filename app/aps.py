@@ -127,7 +127,8 @@ async def my_jobs(self):
 
 
 async def update_traffic_reset_job_date(telegram_id, new_end_date):
-    """ Вывод информации о конкретной работе """
+    """ Обновление даты окончания работы """
+
     scheduler.start()
     job_id = f'trf_reset_{telegram_id}'
     job_trigger = scheduler.get_job(job_id).trigger
