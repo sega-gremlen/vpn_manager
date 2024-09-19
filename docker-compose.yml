@@ -10,6 +10,19 @@ services:
     ports:
       - "5432:5432"
 
+  fastapi:
+    image: fastapi_image
+    build:
+      context: .
+    container_name: fastapi_container_name
+    env_file:
+      - .env
+    working_dir: /vpn_manager
+    command: "gunicorn app.notification_api:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 --log-level debug --access-logfile - --error-logfile -"
+    ports:
+      - "37777:8000"
+
+
   panel:
     image: ghcr.io/mhsanaei/3x-ui:latest
     container_name: 3x-ui
@@ -43,8 +56,9 @@ services:
       - panel
     working_dir: /vpn_manager
     command: "bash docker_commands.sh"
-    ports:
-      - "37777:8000"
+#    ports:
+#      - "37777:8000"
+
 
 #  fastapi:
 #    image: python:3.12

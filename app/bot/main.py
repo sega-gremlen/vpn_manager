@@ -3,14 +3,11 @@ import logging
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.filters import CommandStart, Command
-from aiogram.fsm.storage.base import StorageKey
-from aiogram.fsm.storage.memory import MemoryStorage
 
 from app.bot.handlers.user import *
 from app.main_interface import main_interface
 from app.bot.utils.jinja_templates import error_message, success_payment, xray_url, sub_renew_msg
 from app.bot.handlers.admin import *
-from app.bot.keyboards.inline import main_menu
 from app.db.payment_requests.dao import PaymentRequestsDAO
 
 logger = logging.getLogger(__name__)
@@ -25,21 +22,10 @@ async def send_error_msg(bott, telegram_id):
 
 
 async def activate_subscription(payment_data, bott=bot):
-    logger.info('activate_subscription')
-    if payment_data == 'test':
-        logger.info('test')
-        await main_interface.test_create_job()
-        return
-
     payment_request: PaymentRequests = await PaymentRequestsDAO.find_one_or_none(
         label=payment_data['label']
     )
     telegram_id = payment_request.telegram_id
-
-    # Создаём стейт что бы поменять состояния
-    # state = FSMContext(storage=MemoryStorage(),
-    #                    key=StorageKey(chat_id=telegram_id, user_id=telegram_id, bot_id=bott.id))
-    # await state.set_state(BuySubSteps.SUB_ACTIVATED)
 
     raw_xray_url, sub_type = await main_interface.activate_subscription(payment_data)
 

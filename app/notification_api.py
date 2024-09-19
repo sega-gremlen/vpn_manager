@@ -17,9 +17,9 @@ from config import settings
 from app.bot.main import activate_subscription, send_error_msg
 from app.bot.main import bot
 
-logger = logging.getLogger(__name__)
 
 app = FastAPI()
+logger = logging.getLogger(__name__)
 
 # Шаблоны для ответов на редирект ссылке
 api_templates = Jinja2Templates(directory=settings.API_TEMPLATES_PATH)
@@ -46,6 +46,8 @@ async def get_payment(
         unaccepted: Annotated[str, Form()] = '',
         bill_id: Annotated[str, Form()] = '',  # не беру в бд
 ):
+    """ Получение уведомления об оплате """
+
     payment_data = {
         'bill_id': bill_id,
         'operation_label': operation_label,
@@ -74,6 +76,7 @@ async def get_payment(
 
 @app.post("/test")
 async def test():
+    logger.info('жопа')
     logger.info('поолучил test')
     await activate_subscription('test')
     return Response(status_code=200)
@@ -81,7 +84,9 @@ async def test():
 
 @app.get("/redirect/{label}")
 async def create_proxy_url(request: Request, label: str):
-    # http://localhost:8000/redirect/188e9987-c048-4df5-956c-429b16c6a3df
+    """ Создание редирект ссылки типа:
+    http://localhost:8000/redirect/188e9987-c048-4df5-956c-429b16c6a3df
+    """
 
     # Поиск label в бд
     payment_request: PaymentRequests = await PaymentRequestsDAO.find_one_or_none(label=label)

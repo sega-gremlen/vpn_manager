@@ -1,5 +1,6 @@
 import uuid
 import hashlib
+from datetime import timedelta
 
 import requests
 
@@ -38,7 +39,6 @@ class MainInterface:
     async def create_payment_request(self, telegram_id, sub_type: SubscriptionTypes):
         """ Создание в бд объекта запроса на оплату"""
 
-        print(sub_type)
         user: Users = await UsersDAO.find_one_or_none(telegram_id=telegram_id)
         amount = sub_type.price
         label = str(uuid.uuid4())
@@ -93,14 +93,6 @@ class MainInterface:
                 stop=stop,
             )
 
-    @staticmethod
-    async def test_create_job():
-        logger.info('test_create_job')
-        dt_now = datetime.now()
-        await add_traffic_reset_job(123,
-                                    dt_now,
-                                    dt_now + timedelta(days=30),
-                                    30)
 
     @staticmethod
     async def create_payment(subscription_id, user_id, created_at, payment_data):

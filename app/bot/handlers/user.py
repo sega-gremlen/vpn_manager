@@ -1,6 +1,5 @@
 from datetime import timedelta, datetime
 
-import requests
 from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery, Message
@@ -15,7 +14,7 @@ from app.db.subscriptions.dao import SubscriptionsDAO
 from app.db.subscriptions.models import Subscriptions
 from app.db.users.dao import UsersDAO, Users
 from app.db.subscription_types.dao import SubscriptionTypesDAO
-from app.main_interface import main_interface, logger
+from app.main_interface import main_interface
 
 
 # -------------------- Оформление новой подписки --------------------
@@ -97,9 +96,6 @@ async def wait_for_payment(call: CallbackQuery):
 
 # -------------------- Статистика подписки --------------------
 async def my_profile(call: CallbackQuery, state: FSMContext):
-    response = requests.post(f'http://127.0.0.1:8000/test')
-    logger.info(response)
-
     await state.set_state(MyProfile.GET_INSIDE)
     await call.answer()
     telegram_id = call.from_user.id

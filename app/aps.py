@@ -1,7 +1,6 @@
-import asyncio
 import logging
 import zoneinfo
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -36,7 +35,6 @@ async def traffic_monitor_job():
     Потом возможно сделаю историю трафика.
     """
 
-    # dt_now = datetime.now()
     users_subscriptions_periods = await UsersDAO.get_users_with_active_sub()
 
     for data_row in users_subscriptions_periods:
@@ -61,50 +59,41 @@ async def add_traffic_reset_job(telegram_id: int,
                                 days_interval: int):
     """ Добавление работы по перезапуску трафика для пользователя """
 
-    logger.info('1')
-
     # Проверка на корректность даты окончания введенной работы
     # Костыль с датами нужен для тестов, при создании триггера проставляется автоматически временная зона
     # Поэтому временную зону нужно вставлять вручную, в этом случае сравнивать с датой без tz нельзя
     try:
-        logger.info('2')
         tz_obj = zoneinfo.ZoneInfo(key=str(end_date.tzinfo))
         dt_now = datetime.now(tz=tz_obj)
     except zoneinfo.ZoneInfoNotFoundError:
-        logger.info('3')
         dt_now = datetime.now()
 
-    logger.info('4')
-
     if end_date < dt_now:
-        logger.info('5')
-        logger.info(f'Дата завершения работы меньше текущей даты для {telegram_id}')
+        print(f'Дата завершения работы меньше текущей даты для {telegram_id}')
         return
 
-    logger.info('6')
     job_id = f'trf_reset_{telegram_id}'
 
-    logger.info('7')
     # Удаляем старую работу если вдруг такая имеется
     job = scheduler.get_job(job_id)
-    logger.info('8')
     if job:
-        logger.info('9')
         scheduler.remove_job(job.id)
 
-    logger.info('10')
     trigger = IntervalTrigger(
         days=days_interval,
         start_date=start_date,
         end_date=end_date
     )
-    logger.info('11')
+
+    # Старт и стоп потому что этот поток запускается отдельно
+    scheduler.start()
     new_job = scheduler.add_job(
         traffic_reset,
         trigger=trigger,
         args=[telegram_id],
         id=job_id,
     )
+    scheduler.shutdown()
 
     logger.info(f'Работа по перезапуску трафика {new_job} для пользователя {telegram_id} добавлена')
 
@@ -148,7 +137,6 @@ async def update_traffic_reset_job_date(telegram_id, new_end_date):
         end_date=new_end_date
     )
     scheduler.modify_job(str(telegram_id), trigger=new_trigger)
-
     print(f'Работа по обновлению трафика для пользователя {telegram_id} обновлена')
 
 
