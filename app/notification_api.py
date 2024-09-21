@@ -7,7 +7,7 @@ from fastapi import FastAPI, Form, HTTPException, status, Response
 from starlette.requests import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
-# import uvicorn
+
 
 from app.db.payment_requests.models import PaymentRequests
 from app.db.payment_requests.dao import PaymentRequestsDAO
@@ -98,7 +98,6 @@ async def create_proxy_url(request: Request, label: str):
     # Если уже оплачено
     if payment_request.completed:
         logger.info('Уже оплачено')
-        await send_error_msg(bot, payment_request.telegram_id) if settings.MODE in ('DEV', 'PROD') else ...
         return api_templates.TemplateResponse(
             request=request,
             name='payment_completed.html',
@@ -108,7 +107,6 @@ async def create_proxy_url(request: Request, label: str):
     # Если время истекло
     if payment_request.stop_at < dt.now():
         logger.info('Время истекло')
-        await send_error_msg(bot, payment_request.telegram_id) if settings.MODE in ('DEV', 'PROD') else ...
         return api_templates.TemplateResponse(
             request=request,
             name='outdated_request.html',
@@ -120,7 +118,6 @@ async def create_proxy_url(request: Request, label: str):
         payment_request.user_id)
     if payment_request.id != last_payment_request.id:
         logger.info('Существует более новая ссылка')
-        await send_error_msg(bot, payment_request.telegram_id) if settings.MODE in ('DEV', 'PROD') else ...
         return api_templates.TemplateResponse(
             request=request,
             name='newer_url_exists.html',

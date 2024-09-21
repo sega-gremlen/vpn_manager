@@ -1,7 +1,7 @@
 from config import settings
 
 from aiogram import Bot
-from aiogram.types import BotCommandScopeChatAdministrators, BotCommandScopeDefault, BotCommand, BotCommandScopeChat
+from aiogram.types import BotCommandScopeDefault, BotCommandScopeChat
 
 from aiogram.types import BotCommand
 
@@ -11,10 +11,6 @@ async def set_commands(bot: Bot):
         BotCommand(
             command='start',
             description='Начать работу'
-        ),
-        BotCommand(
-            command='info',
-            description='Информация о проекте',
         ),
     ]
 

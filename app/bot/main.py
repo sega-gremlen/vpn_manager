@@ -11,6 +11,8 @@ from app.db.payment_requests.dao import PaymentRequestsDAO
 
 bot = Bot(token=settings.BOT_TOKEN,
           default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
