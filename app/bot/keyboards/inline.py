@@ -25,7 +25,7 @@ def main_menu():
     keyword_builder.adjust(1)
     return keyword_builder.as_markup()
 
-def main_menu_from_success_payment():
+def back_to_main_menu_from_success_payment():
     keyword_builder = InlineKeyboardBuilder()
     keyword_builder.button(text='Главное меню', callback_data='main_menu')
     keyword_builder.adjust(1)
@@ -45,6 +45,7 @@ def user_main_menu_kb():
     keyword_builder.button(text='Купить подписку', callback_data='buy_sub')
     keyword_builder.button(text='Мой профиль', callback_data='my_profile')
     keyword_builder.button(text='Инструкции', callback_data='instructions')
+    keyword_builder.button(text='О проекте', callback_data='about_us')
     keyword_builder.button(text='Чат с техподдержкой', url=settings.SUPPORT_ID)
     keyword_builder.adjust(1, 1, 1, 1, 1)
     return keyword_builder.as_markup()

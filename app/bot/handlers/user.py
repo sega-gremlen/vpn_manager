@@ -241,3 +241,11 @@ async def linux_nekoray_instruction(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text(text=linux_nekoray_instruction_tm,
                                  reply_markup=back_kb(),
                                  parse_mode=ParseMode.HTML)
+
+
+# -------------------- О проекте --------------------
+
+async def info(message: Message):
+    logger.info('Запущен хэндлер info')
+    await message.answer(text=info_tm,
+                         reply_markup=back_kb())

@@ -40,12 +40,12 @@ async def activate_subscription(payment_data, bott=bot):
             await bott.send_message(telegram_id,
                                     text=xray_url.render(raw_xray_url) + '\n' + first_sub_activated_msg,
                                     parse_mode=ParseMode.HTML,
-                                    reply_markup=main_menu_from_success_payment())
+                                    reply_markup=back_to_main_menu_from_success_payment())
 
         else:
             await bott.send_message(telegram_id,
-                                   text=sub_renew_msg,
-                                   reply_markup=main_menu_from_success_payment())
+                                    text=sub_renew_msg,
+                                    reply_markup=back_to_main_menu_from_success_payment())
     # Для тестов
     else:
         if raw_xray_url:
@@ -119,7 +119,8 @@ def register_user_handlers(dp: Dispatcher):
     dp.callback_query.register(linux_nekoray_instruction, Instructions.OS_SECTION, F.data == 'nekoray_lin')
     dp.callback_query.register(windows_instruction, Instructions.LINUX_SECTION, F.data == 'back')
 
-    # Чат с поддержкой
+    # О проекте
+    dp.callback_query.register(linux_instruction, F.data == 'about_us')
 
     # Старт/Главное меню
     dp.message.register(get_main_menu, CommandStart())
