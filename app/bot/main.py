@@ -117,7 +117,7 @@ def register_user_handlers(dp: Dispatcher):
     # Linux
     dp.callback_query.register(linux_instruction, F.data == 'linux')
     dp.callback_query.register(linux_nekoray_instruction, Instructions.OS_SECTION, F.data == 'nekoray_lin')
-    dp.callback_query.register(windows_instruction, Instructions.LINUX_SECTION, F.data == 'back')
+    dp.callback_query.register(linux_instruction, Instructions.LINUX_SECTION, F.data == 'back')
 
     # О проекте
     dp.callback_query.register(info, F.data == 'about_us')
@@ -127,7 +127,6 @@ def register_user_handlers(dp: Dispatcher):
     dp.message.register(get_main_menu)
     dp.callback_query.register(get_main_menu, F.data == 'back')
     dp.callback_query.register(get_main_menu, F.data == 'main_menu')
-
 
     # Команды админа
     dp.message.register(refund_sub_enter, Command('refund_sub'))
