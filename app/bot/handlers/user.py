@@ -237,7 +237,7 @@ async def windows_nekoray_instruction(call: CallbackQuery, state: FSMContext):
 
 async def linux_nekoray_instruction(call: CallbackQuery, state: FSMContext):
     logger.info(f'{call.message.from_user.id}: Запущен хэндлер windows_nekoray_instruction')
-    await state.set_state(Instructions.WINDOWS_SECTION)
+    await state.set_state(Instructions.LINUX_SECTION)
     await call.message.edit_text(text=linux_nekoray_instruction_tm,
                                  reply_markup=back_kb(),
                                  parse_mode=ParseMode.HTML)
