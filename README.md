@@ -1,6 +1,6 @@
 Для деплоя:
 1. Отредактировать MAIN_HOST == NOTI_HOST == ip сервера
-2. Поменять ip в уведомлениях на Юмоней
+2. Поменять ip в уведомлениях на Юмоней: https://yoomoney.ru/transfer/myservices/http-notification?lang=ru
 
 Порты:
 1. Fastapi: 37777
