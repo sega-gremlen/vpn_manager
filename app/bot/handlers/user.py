@@ -247,6 +247,6 @@ async def linux_nekoray_instruction(call: CallbackQuery, state: FSMContext):
 
 async def info(call: Message):
     logger.info(f'{call.message.from_user.id}: Запущен хэндлер info')
-    await call.answer(text=info_tm,
+    await call.edit_text(text=info_tm,
                       reply_markup=back_kb(),
                       parse_mode=ParseMode.HTML)
