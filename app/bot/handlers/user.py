@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 # -------------------- Оформление новой подписки --------------------
 async def get_main_menu(message: Message, state: FSMContext):
-    logger.info(f'{message.message.from_user.id}: Запущен хэндлер get_main_menu')
+    logger.info(f'{message.from_user.id}: Запущен хэндлер get_main_menu')
     await state.clear()
     if type(message) is CallbackQuery:
         await message.message.edit_text(text=user_main_menu_tm.render(), reply_markup=user_main_menu_kb())
