@@ -120,7 +120,7 @@ def register_user_handlers(dp: Dispatcher):
     dp.callback_query.register(windows_instruction, Instructions.LINUX_SECTION, F.data == 'back')
 
     # О проекте
-    dp.callback_query.register(linux_instruction, F.data == 'about_us')
+    dp.callback_query.register(info, F.data == 'about_us')
 
     # Старт/Главное меню
     dp.message.register(get_main_menu, CommandStart())

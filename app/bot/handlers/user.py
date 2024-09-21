@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 # -------------------- Оформление новой подписки --------------------
 async def get_main_menu(message: Message, state: FSMContext):
-    logger.info('Запущен хэндлер get_main_menu')
+    logger.info(f'{message.message.from_user.id}: Запущен хэндлер get_main_menu')
     await state.clear()
     if type(message) is CallbackQuery:
         await message.message.edit_text(text=user_main_menu_tm.render(), reply_markup=user_main_menu_kb())
@@ -37,7 +37,7 @@ async def get_main_menu(message: Message, state: FSMContext):
 
 
 async def buy_subscription(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер buy_subscription')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер buy_subscription')
     await state.update_data(user_id=call.message.from_user.id)
     await state.set_state(BuySubSteps.GET_PERIODS)
     await call.answer()
@@ -51,7 +51,7 @@ async def buy_subscription(call: CallbackQuery, state: FSMContext):
 
 
 async def buy_subscription_get_periods(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер buy_subscription_get_periods')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер buy_subscription_get_periods')
     await call.answer()
     sub_type = await SubscriptionTypesDAO.find_one_or_none(name=call.data)
     telegram_id = call.from_user.id
@@ -83,22 +83,22 @@ async def buy_subscription_get_periods(call: CallbackQuery, state: FSMContext):
 
 
 async def activate_trial(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер activate_trial')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер activate_trial')
     await state.set_state(BuySubSteps.SUB_ACTIVATED)
     await call.answer()
     raw_xray_url = await main_interface.activate_trial_subscription(call.from_user.id)
-    return await call.message.answer(text=xray_url.render(raw_xray_url) + '\n' + first_sub_activated_msg,
-                                     parse_mode=ParseMode.HTML,
-                                     reply_markup=main_menu())
+    return await call.message.edit_text(text=xray_url.render(raw_xray_url) + '\n' + first_sub_activated_msg,
+                                        parse_mode=ParseMode.HTML,
+                                        reply_markup=main_menu())
 
 
 async def wait_for_payment(call: CallbackQuery):
-    logger.info('Запущен хэндлер wait_for_payment')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер wait_for_payment')
     return await call.message.answer('Ждём подтверждения оплаты...')
 
 # -------------------- Статистика подписки --------------------
 async def my_profile(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер my_profile')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер my_profile')
     await state.set_state(MyProfile.GET_INSIDE)
     await call.answer()
     telegram_id = call.from_user.id
@@ -112,7 +112,7 @@ async def my_profile(call: CallbackQuery, state: FSMContext):
 
 
 async def show_url_conf(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер show_url_conf')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер show_url_conf')
     await call.answer()
     await state.set_state(MyProfile.GET_URL)
     user: Users = await UsersDAO.find_one_or_none(telegram_id=call.from_user.id)
@@ -123,49 +123,49 @@ async def show_url_conf(call: CallbackQuery, state: FSMContext):
 
 # -------------------- Инструкции --------------------
 async def os_choose(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер os_choose')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер os_choose')
     await state.clear()
     await call.message.edit_text(text='Выберите операционную систему', reply_markup=os_choose_kb())
 
 
 async def ios_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер ios_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер ios_instruction')
     await state.set_state(Instructions.OS_SECTION)
     await call.message.edit_text(text='Выберите любую программу', reply_markup=ios_choose_kb())
 
 
 async def macos_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер macos_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер macos_instruction')
     await state.set_state(Instructions.OS_SECTION)
     await call.message.edit_text(text='Выберите любую программу', reply_markup=macos_choose_kb())
 
 
 async def android_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер android_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер android_instruction')
     await state.set_state(Instructions.OS_SECTION)
     await call.message.edit_text(text='Выберите любую программу', reply_markup=android_choose_kb())
 
 
 async def windows_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер windows_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер windows_instruction')
     await state.set_state(Instructions.OS_SECTION)
     await call.message.edit_text(text='Выберите любую программу', reply_markup=windows_choose_kb())
 
 
 async def linux_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер linux_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер linux_instruction')
     await state.set_state(Instructions.OS_SECTION)
     await call.message.edit_text(text='Выберите любую программу', reply_markup=linux_choose_kb())
 
 
 async def ios_foxray_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер foxray_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер foxray_instruction')
     await state.set_state(Instructions.IOS_SECTION)
     await call.message.edit_text(text=ios_foxray_instruction_tm, reply_markup=back_kb())
 
 
 async def ios_streisand_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер streisand_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер streisand_instruction')
     await state.set_state(Instructions.IOS_SECTION)
     await call.message.edit_text(text=ios_streisand_instruction_tm,
                                  reply_markup=back_kb(),
@@ -173,7 +173,7 @@ async def ios_streisand_instruction(call: CallbackQuery, state: FSMContext):
 
 
 async def ios_v2box_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер streisand_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер streisand_instruction')
     await state.set_state(Instructions.IOS_SECTION)
     await call.message.edit_text(text=ios_v2box_instruction_tm,
                                  reply_markup=back_kb(),
@@ -181,7 +181,7 @@ async def ios_v2box_instruction(call: CallbackQuery, state: FSMContext):
 
 
 async def macos_nekoray_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер streisand_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер streisand_instruction')
     download_url_intel = await main_interface.get_latest_github_release('macos_nekoray_intel')
     download_url_apple = await main_interface.get_latest_github_release('macos_nekoray_apple')
     await state.set_state(Instructions.MACOS_SECTION)
@@ -192,7 +192,7 @@ async def macos_nekoray_instruction(call: CallbackQuery, state: FSMContext):
 
 
 async def macos_v2box_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер streisand_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер streisand_instruction')
     await state.set_state(Instructions.MACOS_SECTION)
     await call.message.edit_text(text=macos_v2box_instruction_tm,
                                  reply_markup=back_kb(),
@@ -200,7 +200,7 @@ async def macos_v2box_instruction(call: CallbackQuery, state: FSMContext):
 
 
 async def android_nekobox_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер android_nekobox_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер android_nekobox_instruction')
     download_url = await main_interface.get_latest_github_release('android_nekobox')
     await state.set_state(Instructions.ANDROID_SECTION)
     await call.message.edit_text(text=android_nekobox_instruction_tm,
@@ -209,7 +209,7 @@ async def android_nekobox_instruction(call: CallbackQuery, state: FSMContext):
 
 
 async def android_v2rayng_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер android_v2ray_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер android_v2ray_instruction')
     download_url = await main_interface.get_latest_github_release('android_v2rayNG')
     await state.set_state(Instructions.ANDROID_SECTION)
     await call.message.edit_text(text=android_v2ray_instruction_tm.render(),
@@ -218,7 +218,7 @@ async def android_v2rayng_instruction(call: CallbackQuery, state: FSMContext):
 
 
 async def windows_invisible_man_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер windows_xray_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер windows_xray_instruction')
     download_url = await main_interface.get_latest_github_release('windows_invisible_man')
     await state.set_state(Instructions.WINDOWS_SECTION)
     await call.message.edit_text(text=windows_invisible_man_instruction_tm,
@@ -227,7 +227,7 @@ async def windows_invisible_man_instruction(call: CallbackQuery, state: FSMConte
 
 
 async def windows_nekoray_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер windows_nekoray_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер windows_nekoray_instruction')
     download_url = await main_interface.get_latest_github_release('windows_nekoray')
     await state.set_state(Instructions.WINDOWS_SECTION)
     await call.message.edit_text(text=windows_nekoray_instruction_tm,
@@ -236,7 +236,7 @@ async def windows_nekoray_instruction(call: CallbackQuery, state: FSMContext):
 
 
 async def linux_nekoray_instruction(call: CallbackQuery, state: FSMContext):
-    logger.info('Запущен хэндлер windows_nekoray_instruction')
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер windows_nekoray_instruction')
     await state.set_state(Instructions.WINDOWS_SECTION)
     await call.message.edit_text(text=linux_nekoray_instruction_tm,
                                  reply_markup=back_kb(),
@@ -245,7 +245,7 @@ async def linux_nekoray_instruction(call: CallbackQuery, state: FSMContext):
 
 # -------------------- О проекте --------------------
 
-async def info(message: Message):
-    logger.info('Запущен хэндлер info')
-    await message.answer(text=info_tm,
+async def info(call: Message):
+    logger.info(f'{call.message.from_user.id}: Запущен хэндлер info')
+    await call.answer(text=info_tm,
                          reply_markup=back_kb())
