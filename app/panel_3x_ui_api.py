@@ -10,7 +10,6 @@ from config import settings
 
 class PanelApi:
     panel_address = f'http://{settings.PANEL_HOST}:{settings.PANEL_PORT}'
-    print(panel_address)
     login_address = f'{panel_address}/login'
     base_url = f'{panel_address}/panel/api/inbounds'
     params = {
@@ -31,7 +30,6 @@ class PanelApi:
         api_request = list(filter(lambda x: 'PanelApi' in x, code_contexts))
         if api_request:
             print(f'Выполнение {api_request[0].strip()}:', end=' ')
-
         response_json = await response.json()
 
         if response_json['success']:
@@ -48,8 +46,9 @@ class PanelApi:
     @classmethod
     async def generate_data_for_user(
             cls, user_uuid: str,
-            user_telegram_id: int,
-            expiry_time: datetime
+            user_telegram_id: int|str,
+            expiry_time: datetime|int,
+            traffic_limit: int,
     ) -> dict:
 
         data = {
@@ -60,8 +59,9 @@ class PanelApi:
                         "id": user_uuid,
                         "flow": "xtls-rprx-vision",
                         "email": str(user_telegram_id),
-                        "totalGB": settings.TRAFFIC_LIMIT * 1024 ** 3,  # В гигабайтах
-                        "expiryTime": int(expiry_time.timestamp()) * 1000,  # Панель не воспринимает время без *1000
+                        "totalGB": traffic_limit,  # В гигабайтах
+                        # Панель не воспринимает время без *1000
+                        "expiryTime": int(expiry_time.timestamp()) * 1000 if expiry_time else 0,
                         "enable": True,
                     }
                 ]
@@ -127,7 +127,7 @@ class PanelApi:
                         }
                     }
                 }),
-                "tag": "inbound-31937",
+                "tag": "inbound-main",
                 "sniffing": json.dumps({
                     "enabled": True,
                     "destOverride": [
@@ -173,12 +173,16 @@ class PanelApi:
     async def add_client_to_inbound(
             cls,
             user_uuid: str,
-            user_telegram_id: int,
-            expiry_time: datetime
+            user_telegram_id: int|str,
+            expiry_time: datetime|int,
+            traffic_limit: int,
     ) -> bool:
         """ Добавить клиента """
 
-        data = await cls.generate_data_for_user(user_uuid, user_telegram_id, expiry_time)
+        data = await cls.generate_data_for_user(user_uuid,
+                                                user_telegram_id,
+                                                expiry_time,
+                                                traffic_limit)
 
         async with aiohttp.ClientSession() as session:
             async with session.post(url=cls.login_address, params=cls.params):
@@ -211,11 +215,16 @@ class PanelApi:
                 async with session.post(f'{cls.base_url}/{settings.INBOUND_ID}/delClient/{user_uuid}') as response:
                     return await cls.check_response(response)
 
+
     @classmethod
-    async def update_client_expiry_time(cls, user_uuid: str, user_telegram_id: int, new_expiry_time: datetime) -> bool:
+    async def update_client_expiry_time(cls,
+                                        user_uuid: str,
+                                        user_telegram_id: int,
+                                        new_expiry_time: datetime,
+                                        traffic_limit) -> bool:
         """ Обновить дату завершения подписки у клиента """
 
-        data = await cls.generate_data_for_user(user_uuid, user_telegram_id, new_expiry_time)
+        data = await cls.generate_data_for_user(user_uuid, user_telegram_id, new_expiry_time, traffic_limit)
 
         async with aiohttp.ClientSession() as session:
             async with session.post(url=cls.login_address, params=cls.params):
@@ -255,3 +264,7 @@ class PanelApi:
 
 if __name__ == '__main__':
     asyncio.run(PanelApi.add_inbound())
+    asyncio.run(PanelApi.add_client_to_inbound(settings.BRIDGE_UUID,
+                                               'bridge',
+                                               0,
+                                               0))

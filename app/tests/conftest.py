@@ -82,7 +82,8 @@ async def prepare_3x_ui():
         await PanelApi.add_client_to_inbound(
             user['xray_uuid'],
             user['telegram_id'],
-            user_sub[0]['stop']
+            user_sub[0]['stop'],
+            settings.TRAFFIC_LIMIT * 1000 ** 3
         )
 
 @pytest.fixture(scope='function', autouse=True)

@@ -6,7 +6,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        # env_file=".env",
+        env_file="/home/fila/PycharmProjects/vpn_manager/.env",
         env_prefix="TEST_" if os.getenv("MODE") == 'TEST' else "",
         case_sensitive=False,
         extra='ignore',
@@ -61,6 +62,7 @@ class Settings(BaseSettings):
     INBOUND_ID: int
     INBOUND_PORT: int
     PROFILE_NAME: str
+    BRIDGE_UUID: str
 
     # ------------ Уведомления
     NOTI_SECRET: str  # Секретный код для проверки хэш суммы уведомления

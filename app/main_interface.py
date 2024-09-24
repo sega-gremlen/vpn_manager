@@ -140,7 +140,8 @@ class MainInterface:
         # Добавляем юзера в панель
         await PanelApi.add_client_to_inbound(user.xray_uuid,
                                              user.telegram_id,
-                                             subscription.stop)
+                                             subscription.stop,
+                                             settings.TRAFFIC_LIMIT * 1024 ** 3)
 
         # Меняем статус потраченного пробного периода
         await BaseDAO.patch(user, trial_wasted=True)
@@ -255,7 +256,10 @@ class MainInterface:
         if sub_activation_type == 'first_time':
 
             # Добавляем юзера в панель
-            await PanelApi.add_client_to_inbound(user.xray_uuid, user.telegram_id, subscription.stop)
+            await PanelApi.add_client_to_inbound(user.xray_uuid,
+                                                 user.telegram_id,
+                                                 subscription.stop,
+                                                 settings.TRAFFIC_LIMIT * 1024 ** 3)
 
             # Меняем статус потраченного пробного периода
             await BaseDAO.patch(user, trial_wasted=True)
@@ -265,7 +269,10 @@ class MainInterface:
 
         else:
             # Обновляем дату окончания подписки юзера в панель
-            await PanelApi.update_client_expiry_time(user.xray_uuid, user.telegram_id, subscription.stop)
+            await PanelApi.update_client_expiry_time(user.xray_uuid,
+                                                     user.telegram_id,
+                                                     subscription.stop,
+                                                     settings.TRAFFIC_LIMIT * 1000 ** 3)
 
             xray_client_config_url = None
 
