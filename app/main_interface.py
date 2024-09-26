@@ -167,7 +167,6 @@ class MainInterface:
         again - пользователь оформил подписку спустя время после окончания предыдущей
 
         """
-        logger.info('13')
         sub_activation_types = ('first_time', 'renew')
         sub_activation_type = sub_activation_types[1]
         last_sub_type_name = None
@@ -185,10 +184,8 @@ class MainInterface:
 
         # Если оплатил пользователь с активной на данный момент подпиской
         if last_sub and last_sub.stop >= dt_now:
-            logger.info('14')
             # Если эта подписка не пробная
             if last_sub_type_name != 'trial':
-                logger.info('15')
                 start_date_for_periods = last_sub.stop
                 stop = last_sub.stop + timedelta(days=payment_request.periods * 30)
                 # Сдвигаем дату окончания подписки в бд
@@ -199,7 +196,6 @@ class MainInterface:
                 await update_traffic_reset_job_date(payment_request.telegram_id, stop)
             # Если эта подписка пробная
             else:
-                logger.info('16')
                 # Сброс трафика в день оформления платной
                 await PanelApi.reset_clients_traffic(payment_request.telegram_id)
                 # Смещаем назад в бд дату конца подписки пробной
@@ -216,7 +212,6 @@ class MainInterface:
                 )
                 start_date_for_periods = subscription.start
 
-                logger.info('16.1')
                 # Добавляем работу по сбросу трафика
                 await add_traffic_reset_job(payment_request.telegram_id,
                                                   subscription.start,
@@ -225,7 +220,6 @@ class MainInterface:
 
         # Если оплатил пользователь с неактивной на данный момент подпиской
         else:
-            logger.info('17')
             # Создаём запись с платной подпиской
             subscription: Subscriptions = await self.create_subscription(
                 payment_request.user_id,
@@ -234,14 +228,12 @@ class MainInterface:
                 dt_now + timedelta(days=payment_request.periods * 30),
             )
             start_date_for_periods = subscription.start
-            logger.info('18')
             # Добавляем работу по сбросу трафика
             await add_traffic_reset_job(payment_request.telegram_id,
                                             subscription.start,
                                             subscription.stop,
                                             30)
 
-        logger.info('19')
 
         # Создаём периоды для подсчета трафика в месяц
         await self.create_periods(start_date_for_periods, subscription.id, payment_request.periods)
@@ -272,7 +264,7 @@ class MainInterface:
             await PanelApi.update_client_expiry_time(user.xray_uuid,
                                                      user.telegram_id,
                                                      subscription.stop,
-                                                     settings.TRAFFIC_LIMIT * 1000 ** 3)
+                                                     settings.TRAFFIC_LIMIT * 1024 ** 3)
 
             xray_client_config_url = None
 
