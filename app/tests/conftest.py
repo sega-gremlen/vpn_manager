@@ -1,7 +1,6 @@
 import asyncio
 from random import randint
 
-from app.aps import aps
 
 import pytest
 from aiogram import Dispatcher
@@ -19,25 +18,22 @@ from app.db.creator import Base
 from app.tests.data.mocked_bot import MockedBot
 from config import settings
 from app.db import creator
-
-
 from app.db.periods.models import Periods
 from app.db.users.models import Users
 from app.db.payments.models import Payments
 from app.db.subscriptions.models import Subscriptions
 from app.db.subscription_types.models import SubscriptionTypes
 from app.db.payment_requests.models import PaymentRequests
-
 from app.tests.data.utils import *
-
 from app.tests.data.mock_subscriptions import subscriptions
 from app.tests.data.mock_users import users
 from app.tests.data.mock_periods import periods
 from app.tests.data.mock_payment_requests import payment_requests
 from app.tests.data.mock_payments import payments
 from app.tests.data.mock_subscription_types import subscription_types
-
 from app.panel_3x_ui_api import PanelApi
+from app.aps import scheduler, add_traffic_reset_job
+
 
 @pytest.fixture(scope='function', autouse=True)
 async def prepare_database():
@@ -91,22 +87,22 @@ async def start_aps():
     """ Подготовка тестового aps """
 
     try:
-        aps.scheduler.start()
+        scheduler.start()
     except:
         pass
 
 
-    await aps.add_traffic_reset_job(users[1]['telegram_id'],
+    await add_traffic_reset_job(users[1]['telegram_id'],
                                     subscriptions[0]['start'],
                                     subscriptions[0]['stop'],
                                     30)
 
-    await aps.add_traffic_reset_job(users[2]['telegram_id'],
+    await add_traffic_reset_job(users[2]['telegram_id'],
                                     subscriptions[1]['start'],
                                     subscriptions[1]['stop'],
                                     30)
 
-    await aps.add_traffic_reset_job(users[4]['telegram_id'],
+    await add_traffic_reset_job(users[4]['telegram_id'],
                                     subscriptions[3]['start'],
                                     subscriptions[3]['stop'],
                                     30)
