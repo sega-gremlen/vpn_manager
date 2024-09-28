@@ -381,7 +381,7 @@ class MainInterface:
             next_traffic_reset = 'Нет сброса трафика'
 
         delta_to_end: timedelta = (curr_period_and_sub.stop_1 - datetime.now())
-        formatted_delta = format_timedelta(delta_to_end, threshold=1, locale='ru_RU')
+        formatted_delta = MainInterface.custom_format_timedelta(delta_to_end)
 
         context = {
             "telegram_id": user_telegram_id,
@@ -433,5 +433,67 @@ class MainInterface:
                 return release['browser_download_url']
 
 
+    @classmethod
+    def custom_format_timedelta(cls, time_delta: timedelta) -> str:
+        """ Форматирование timedelta в строковое представление """
+
+        formatted_delta = []
+        while True:
+            seconds = int(time_delta.total_seconds())
+
+            # Года
+            if seconds > 31104000:
+                t_time_delta = timedelta(seconds=seconds // 31104000 * 31104000)
+                formatted_delta.append(format_timedelta(t_time_delta,
+                                                        threshold=1,
+                                                        granularity='year',
+                                                        locale='ru_RU'))
+                time_delta = timedelta(seconds=seconds % 31104000)
+
+            # Месяцы
+            elif seconds > 2592000:
+                t_time_delta = timedelta(seconds=seconds // 2592000 * 86400)
+                formatted_delta.append(format_timedelta(t_time_delta,
+                                                        threshold=1,
+                                                        granularity='month',
+                                                        locale='ru_RU'))
+                time_delta = timedelta(seconds=seconds % 2592000)
+
+            # Недели
+            elif seconds > 604800:
+                t_time_delta = timedelta(seconds=seconds // 604800 * 86400)
+                formatted_delta.append(format_timedelta(t_time_delta,
+                                                        threshold=1,
+                                                        granularity='week',
+                                                        locale='ru_RU'))
+                time_delta = timedelta(seconds=seconds % 604800)
+
+            # Дни
+            elif  86400 < seconds < 604800:
+                t_time_delta = timedelta(seconds=seconds // 86400 * 86400)
+                formatted_delta.append(format_timedelta(t_time_delta,
+                                                        threshold=1,
+                                                        granularity='day',
+                                                        locale='ru_RU'))
+                time_delta = timedelta(seconds=seconds % 86400)
+
+            # Часы
+            elif 3600 < seconds < 86400:
+                t_time_delta = timedelta(seconds=seconds // 3600 * 3600)
+                formatted_delta.append(format_timedelta(t_time_delta,
+                                                        threshold=1,
+                                                        granularity='hour',
+                                                        locale='ru_RU'))
+                time_delta = timedelta(seconds=seconds % 3600)
+
+            else:
+                if not formatted_delta:
+                    return 'Меньше часа'
+                return ', '.join(formatted_delta[:3])
+
 
 main_interface = MainInterface()
+
+if __name__ == '__main__':
+    a = main_interface.custom_format_timedelta(timedelta(seconds=363243))
+    print(a)
