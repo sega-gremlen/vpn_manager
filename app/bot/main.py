@@ -72,16 +72,15 @@ dp = Dispatcher()
 
 def register_user_handlers(dp: Dispatcher):
     # Команды админа
-    dp.message.register(refund_sub_enter, Command('refund_sub'))
+    dp.message.register(refund_sub_enter, Command('refund_sub'), F.from_user.id == settings.ADMIN_ID)
     dp.message.register(refund_sub_get_url, Admin.REFUND_SUB)
-    dp.message.register(add_user_get_tg_id, Command('add_user'))
+    dp.message.register(add_user_get_tg_id, Command('add_user'), F.from_user.id == settings.ADMIN_ID)
     dp.message.register(add_vip_user, Admin.ADD_USER)
-    dp.message.register(get_curr_jobs, Command('curr_jobs'))
+    dp.message.register(get_curr_jobs, Command('curr_jobs'), F.from_user.id == settings.ADMIN_ID)
 
     # dp.message.register(get_start)
     # dp.message.register(admin.get_main_menu, F.from_user.id == settings.ADMIN_ID)
     # dp.message.register(user.get_main_menu, F.from_user.id != settings.ADMIN_ID)
-
 
     # Покупка подписки
     dp.callback_query.register(buy_subscription, F.data == 'buy_sub')
@@ -91,7 +90,6 @@ def register_user_handlers(dp: Dispatcher):
     dp.callback_query.register(buy_subscription, BuySubSteps.PAY_SUB, F.data == 'back')
     dp.callback_query.register(buy_subscription, BuySubSteps.TRIAL, F.data == 'back')
     dp.callback_query.register(activate_trial, BuySubSteps.TRIAL, F.data == 'activate_trial')
-    # dp.callback_query.register(get_main_menu, BuySubSteps.PAY_SUB, F.data == 'main_menu')
 
     # Статистика подписки
     dp.callback_query.register(my_profile, F.data == 'my_profile')

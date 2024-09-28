@@ -128,7 +128,7 @@ async def current_jobs():
                          f'end date: {end_date}\n'
                          f'next_execute: {next_run_time}\n'
                          f'instances: {instances}')
-    return '\n-----'.join(curr_jobs)
+    return '\n--------\n'.join(curr_jobs)
 
 
 async def update_traffic_reset_job_date(telegram_id, new_end_date):
