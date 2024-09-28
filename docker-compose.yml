@@ -41,6 +41,7 @@ services:
     ports:
       - "37778:2053"
       - "37465:37465"
+      - "37466:37466"
     entrypoint: sh -c "exec /app/x-ui"
 
 
