@@ -438,62 +438,33 @@ class MainInterface:
         """ Форматирование timedelta в строковое представление """
 
         formatted_delta = []
-        while True:
+        # Секунд в периодах: год, месяц, неделя, день, час
+        sec_in_periods = (31104000, 2592000, 604800, 86400, 3600)
+
+        for sec_in_period in sec_in_periods:
             seconds = int(time_delta.total_seconds())
-
-            # Года
-            if seconds > 31104000:
-                t_time_delta = timedelta(seconds=seconds // 31104000 * 31104000)
+            if seconds > sec_in_period:
+                t_time_delta = timedelta(seconds=seconds // sec_in_period * sec_in_period)
                 formatted_delta.append(format_timedelta(t_time_delta,
-                                                        threshold=1,
-                                                        granularity='year',
+                                                        threshold=0.98,
+                                                        # granularity='year',
                                                         locale='ru_RU'))
-                time_delta = timedelta(seconds=seconds % 31104000)
-
-            # Месяцы
-            elif seconds > 2592000:
-                t_time_delta = timedelta(seconds=seconds // 2592000 * 86400)
-                formatted_delta.append(format_timedelta(t_time_delta,
-                                                        threshold=1,
-                                                        granularity='month',
-                                                        locale='ru_RU'))
-                time_delta = timedelta(seconds=seconds % 2592000)
-
-            # Недели
-            elif seconds > 604800:
-                t_time_delta = timedelta(seconds=seconds // 604800 * 86400)
-                formatted_delta.append(format_timedelta(t_time_delta,
-                                                        threshold=1,
-                                                        granularity='week',
-                                                        locale='ru_RU'))
-                time_delta = timedelta(seconds=seconds % 604800)
-
-            # Дни
-            elif  86400 < seconds < 604800:
-                t_time_delta = timedelta(seconds=seconds // 86400 * 86400)
-                formatted_delta.append(format_timedelta(t_time_delta,
-                                                        threshold=1,
-                                                        granularity='day',
-                                                        locale='ru_RU'))
-                time_delta = timedelta(seconds=seconds % 86400)
-
-            # Часы
-            elif 3600 < seconds < 86400:
-                t_time_delta = timedelta(seconds=seconds // 3600 * 3600)
-                formatted_delta.append(format_timedelta(t_time_delta,
-                                                        threshold=1,
-                                                        granularity='hour',
-                                                        locale='ru_RU'))
-                time_delta = timedelta(seconds=seconds % 3600)
-
+                time_delta = timedelta(seconds=seconds % sec_in_period)
             else:
-                if not formatted_delta:
-                    return 'Меньше часа'
-                return ', '.join(formatted_delta[:3])
+                continue
+
+        if not formatted_delta:
+            return 'Меньше часа'
+        return ', '.join(formatted_delta[:3])
 
 
 main_interface = MainInterface()
 
 if __name__ == '__main__':
-    a = main_interface.custom_format_timedelta(timedelta(seconds=363243))
+    # start = datetime.strptime("26.09.2024 23:38:57", "%d.%m.%Y %H:%M:%S")
+    stop = datetime.strptime("25.11.2024 23:38:57", "%d.%m.%Y %H:%M:%S")
+    delta = stop - datetime.now()
+    print(delta.days)
+    # delta = timedelta(days=361)
+    a = main_interface.custom_format_timedelta(delta)
     print(a)
