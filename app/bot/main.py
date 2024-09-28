@@ -71,6 +71,12 @@ dp = Dispatcher()
 
 
 def register_user_handlers(dp: Dispatcher):
+    # Команды админа
+    dp.message.register(refund_sub_enter, Command('refund_sub'))
+    dp.message.register(refund_sub_get_url, Admin.REFUND_SUB)
+    dp.message.register(add_user_get_tg_id, Command('add_user'))
+    dp.message.register(add_vip_user, Admin.ADD_USER)
+    dp.message.register(get_curr_jobs, Command('curr_jobs'))
 
     # dp.message.register(get_start)
     # dp.message.register(admin.get_main_menu, F.from_user.id == settings.ADMIN_ID)
@@ -129,13 +135,6 @@ def register_user_handlers(dp: Dispatcher):
     dp.message.register(get_main_menu)
     dp.callback_query.register(get_main_menu, F.data == 'back')
     dp.callback_query.register(get_main_menu, F.data == 'main_menu')
-
-    # Команды админа
-    dp.message.register(refund_sub_enter, Command('refund_sub'))
-    dp.message.register(refund_sub_get_url, Admin.REFUND_SUB)
-    dp.message.register(add_user_get_tg_id, Command('add_user'))
-    dp.message.register(add_vip_user, Admin.ADD_USER)
-    dp.message.register(get_curr_jobs, Command('curr_jobs'))
 
 
 register_user_handlers(dp)
