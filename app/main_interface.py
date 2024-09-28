@@ -380,7 +380,7 @@ class MainInterface:
         else:
             next_traffic_reset = 'Нет сброса трафика'
 
-        delta_to_end: timedelta = (datetime.now() - curr_period_and_sub.stop_1)
+        delta_to_end: timedelta = (curr_period_and_sub.stop_1 - datetime.now())
         formatted_delta = format_timedelta(delta_to_end, threshold=1, locale='ru_RU')
 
         context = {
