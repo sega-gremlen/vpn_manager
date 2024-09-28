@@ -114,19 +114,21 @@ async def add_traffic_monitor_job():
         logger.info('Работа по мониторингу статистики пользователей добавлена')
 
 
-async def my_jobs(self):
+async def current_jobs():
     """ Вывести список текущих работ """
 
-    for job in self.scheduler.get_jobs():
+    curr_jobs = []
+    for job in scheduler.get_jobs():
         start_date = job.trigger.start_date
         end_date = job.trigger.end_date
         next_run_time = job.next_run_time
         instances = job.max_instances
-        logger.info(f'{job.name} for {job.id}\n'
-                    f'start date: {start_date},\n'
-                    f'end date: {end_date}\n'
-                    f'next_execute: {next_run_time}\n'
-                    f'instances: {instances}\n---------')
+        curr_jobs.append(f'{job.id} \n'
+                         f'start date: {start_date},\n'
+                         f'end date: {end_date}\n'
+                         f'next_execute: {next_run_time}\n'
+                         f'instances: {instances}')
+    return '\n-----'.join(curr_jobs)
 
 
 async def update_traffic_reset_job_date(telegram_id, new_end_date):

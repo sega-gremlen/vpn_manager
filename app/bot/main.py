@@ -134,7 +134,8 @@ def register_user_handlers(dp: Dispatcher):
     dp.message.register(refund_sub_enter, Command('refund_sub'))
     dp.message.register(refund_sub_get_url, Admin.REFUND_SUB)
     dp.message.register(add_user_get_tg_id, Command('add_user'))
-    dp.message.register(add_user_main, Admin.ADD_USER)
+    dp.message.register(add_vip_user, Admin.ADD_USER)
+    dp.message.register(get_curr_jobs, Command('curr_jobs'))
 
 
 register_user_handlers(dp)

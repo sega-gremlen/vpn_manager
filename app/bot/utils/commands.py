@@ -22,11 +22,13 @@ async def set_commands(bot: Bot):
         BotCommand(
             command='refund_sub',
             description='Возврат денег'
+        ),
+        BotCommand(
+            command='curr_jobs',
+            description='Текущие работы aps'
         )
-
     ]
 
 
     await bot.set_my_commands(commands, scope=BotCommandScopeDefault())
     await bot.set_my_commands(admin_commands, scope=BotCommandScopeChat(chat_id=settings.ADMIN_ID))
-
