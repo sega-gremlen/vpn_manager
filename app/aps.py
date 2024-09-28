@@ -13,7 +13,7 @@ from app.db.users.dao import UsersDAO
 from app.panel_3x_ui_api import PanelApi
 from config import settings
 
-logger = logging.getLogger(__name__)  # Логгер для текущего модуля/файла
+logger = logging.getLogger(__name__)
 
 
 jobstores = {'default': SQLAlchemyJobStore(url=settings.get_database_url(sync=True))}
@@ -22,18 +22,19 @@ scheduler = AsyncIOScheduler(jobstores=jobstores)
 
 async def start_scheduler():
     scheduler.start()
-    await add_traffic_monitor_job()
+    # await add_traffic_monitor_job()
 
 
 async def traffic_reset(telegram_id):
-    """ Сброс трафика с записью трафика за месяц"""
+    """ Сброс трафика с записью в бд трафика за месяц """
 
+    logger.info(f'Сбрасываем трафик для пользователя {telegram_id}')
     curr_period_sub = await PeriodsDAO.find_current_period_sub(telegram_id)
-    logger.info(curr_period_sub)
     user_period: Periods = await PeriodsDAO.find_one_or_none(id=curr_period_sub.id)
     user_traffic = await PanelApi.get_client_traffics_with_email(telegram_id)
     await PeriodsDAO.patch(user_period, current_value=user_traffic)
     await PanelApi.reset_clients_traffic(telegram_id)
+
 
 
 async def traffic_monitor_job():
@@ -47,8 +48,8 @@ async def traffic_monitor_job():
 
     for data_row in users_subscriptions_periods:
         user_traffic = await PanelApi.get_client_traffics_with_email(data_row.telegram_id)
-        user_period: Periods = await PeriodsDAO.find_one_or_none(id=data_row.id_2)
-        await PeriodsDAO.patch(user_period, current_value=user_traffic)
+        # user_period: Periods = await PeriodsDAO.find_one_or_none(id=data_row.id_2)
+        # await PeriodsDAO.patch(user_period, current_value=user_traffic)
 
 
 async def subscribe_end_notification():
