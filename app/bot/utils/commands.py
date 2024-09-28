@@ -29,7 +29,7 @@ async def set_commands(bot: Bot):
         ),
         BotCommand(
             command='trf_rst',
-            description='Тест резета трафика'
+            description='Принудительный сброс трафика'
         )
     ]
 

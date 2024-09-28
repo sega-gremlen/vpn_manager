@@ -25,6 +25,7 @@ class Admin(StatesGroup):
     REFUND_SUB = State()
     GET_CONF_URL = State()
     ADD_USER = State()
+    RST_TRF = State()
 
 
 

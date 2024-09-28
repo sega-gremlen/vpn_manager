@@ -18,7 +18,7 @@ from app.bot.utils.statesform import Admin
 from app.aps import current_jobs
 from app.main_interface import main_interface
 from app.bot.utils.jinja_templates import xray_url
-
+from app.aps import traffic_reset
 
 
 async def refund_sub_enter(message: Message, state: FSMContext) -> None:
@@ -86,8 +86,15 @@ async def get_curr_jobs(message: Message, state: FSMContext):
     await state.clear()
 
 
-async def trf_rst(message: Message, state: FSMContext):
-    from app.aps import traffic_reset
-    await traffic_reset(741614077)
+async def trf_rst_1(message: Message, state: FSMContext):
+    await message.answer('Пришлите телеграм id пользователя')
+    await state.set_state(Admin.RST_TRF)
+
+
+async def trf_rst_2(message: Message, state: FSMContext):
+    telegram_id = message.text
+    if str.isalnum(telegram_id):
+        await traffic_reset(int(telegram_id))
+    await state.clear()
 
 

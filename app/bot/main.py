@@ -77,7 +77,8 @@ def register_user_handlers(dp: Dispatcher):
     dp.message.register(add_user_get_tg_id, Command('add_user'), F.from_user.id == settings.ADMIN_ID)
     dp.message.register(add_vip_user, Admin.ADD_USER, F.from_user.id == settings.ADMIN_ID)
     dp.message.register(get_curr_jobs, Command('curr_jobs'), F.from_user.id == settings.ADMIN_ID)
-    dp.message.register(trf_rst, Command('trf_rst'), F.from_user.id == settings.ADMIN_ID)
+    dp.message.register(trf_rst_1, Command('trf_rst'), F.from_user.id == settings.ADMIN_ID)
+    dp.message.register(trf_rst_2, Admin.RST_TRF, F.from_user.id == settings.ADMIN_ID)
 
 
 
