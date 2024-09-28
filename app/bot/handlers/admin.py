@@ -77,6 +77,7 @@ async def add_vip_user(message: Message, state: FSMContext):
     data_config = await main_interface.create_vip_user(user_name)
     await message.answer(text=xray_url.render(data_config),
                          parse_mode=ParseMode.HTML)
+    await state.clear()
 
 
 async def get_curr_jobs(message: Message, state: FSMContext):

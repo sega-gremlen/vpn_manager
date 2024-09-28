@@ -5,3 +5,4 @@ venv
 .git
 panel_db
 postgres_db
+.env_dev
