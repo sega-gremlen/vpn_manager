@@ -379,7 +379,7 @@ class MainInterface:
         else:
             next_traffic_reset = 'Нет сброса трафика'
 
-        days_to_end: int = (datetime.now() - curr_period_and_sub.start_1).days
+        days_to_end: int = (datetime.now() - curr_period_and_sub.stop_1).days
 
         context = {
             "telegram_id": user_telegram_id,
