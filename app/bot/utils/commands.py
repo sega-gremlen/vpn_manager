@@ -26,6 +26,10 @@ async def set_commands(bot: Bot):
         BotCommand(
             command='curr_jobs',
             description='Текущие работы aps'
+        ),
+        BotCommand(
+            command='trf_rst',
+            description='Тест резета трафика'
         )
     ]
 

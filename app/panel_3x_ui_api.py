@@ -76,7 +76,7 @@ class PanelApi:
     @classmethod
     async def add_inbound(cls, inbound_id, profile_name, port, prvt_key, sid, pubkey) -> bool:
         """ Добавить входящее соединение """
-        exist_inbound = await cls.get_inbound()
+        exist_inbound = await cls.get_inbound(inbound_id)
         if not exist_inbound:
             data = {
                 "id": inbound_id,
@@ -160,12 +160,12 @@ class PanelApi:
                     return await cls.check_response(response)
 
     @classmethod
-    async def get_inbound(cls) -> bool|dict:
+    async def get_inbound(cls, inbound_id) -> bool|dict:
         """ Получить информацию о входящем соединении """
 
         async with aiohttp.ClientSession() as session:
             async with session.post(url=cls.login_address, params=cls.params):
-                async with session.get(f'{cls.base_url}/get/{settings.INBOUND_ID}') as response:
+                async with session.get(f'{cls.base_url}/get/{inbound_id}') as response:
                     if await cls.check_response(response):
                         return await response.json()
                     return False

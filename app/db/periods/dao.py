@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from asyncpg.pgproto.pgproto import timedelta
 from sqlalchemy import select
 
 from app.db.periods.models import Periods
@@ -15,7 +16,7 @@ class PeriodsDAO(BaseDAO):
     @staticmethod
     async def find_current_period_sub(telegram_id):
         async with async_sessionmaker() as session:
-            dt_now = datetime.now()
+            dt_now = datetime.now() - timedelta(seconds=10)
 
             query = (
                 select(Periods.__table__.columns,

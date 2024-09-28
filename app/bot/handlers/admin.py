@@ -83,5 +83,11 @@ async def add_vip_user(message: Message, state: FSMContext):
 async def get_curr_jobs(message: Message, state: FSMContext):
     curr_jobs: str = await current_jobs()
     await message.answer(text=curr_jobs)
+    await state.clear()
+
+
+async def trf_rst(message: Message, state: FSMContext):
+    from app.aps import traffic_reset
+    await traffic_reset(741614077)
 
 

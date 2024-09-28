@@ -65,7 +65,7 @@ class Settings(BaseSettings):
     INBOUND_ID: int
     VIP_INBOUND_ID: int
     INBOUND_PORT: int
-    VIP_INBOUND_PORT: str
+    VIP_INBOUND_PORT: int
     PROFILE_NAME: str
     VIP_PROFILE_NAME: str
     BRIDGE_UUID: str

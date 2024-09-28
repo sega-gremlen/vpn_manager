@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import zoneinfo
 from datetime import datetime
@@ -25,6 +26,13 @@ async def start_scheduler():
 
 
 async def traffic_reset(telegram_id):
+    """ Сброс трафика с записью трафика за месяц"""
+
+    curr_period_sub = await PeriodsDAO.find_current_period_sub(telegram_id)
+    logger.info(curr_period_sub)
+    user_period: Periods = await PeriodsDAO.find_one_or_none(id=curr_period_sub.id)
+    user_traffic = await PanelApi.get_client_traffics_with_email(telegram_id)
+    await PeriodsDAO.patch(user_period, current_value=user_traffic)
     await PanelApi.reset_clients_traffic(telegram_id)
 
 
@@ -153,3 +161,7 @@ async def pause_traffic_monitor(self):
 
     self.scheduler.pause()
     logger.info('Остановили мониторинг')
+
+
+if __name__ == '__main__':
+    asyncio.run(traffic_reset(741614077))
