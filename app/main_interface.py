@@ -3,6 +3,7 @@ import hashlib
 from datetime import timedelta
 
 import requests
+from babel.dates import format_timedelta
 
 from app.db.dao.base import BaseDAO
 from app.db.payment_requests.models import PaymentRequests
@@ -379,7 +380,8 @@ class MainInterface:
         else:
             next_traffic_reset = 'Нет сброса трафика'
 
-        days_to_end: int = (datetime.now() - curr_period_and_sub.stop_1).days
+        delta_to_end: timedelta = (datetime.now() - curr_period_and_sub.stop_1)
+        formatted_delta = format_timedelta(delta_to_end, threshold=1, locale='ru_RU')
 
         context = {
             "telegram_id": user_telegram_id,
@@ -388,7 +390,7 @@ class MainInterface:
             "period_value": user_traffic,
             "traffic_limit": settings.TRAFFIC_LIMIT,
             "next_traffic_reset": next_traffic_reset,
-            "days_to_end": days_to_end,
+            "days_to_end": formatted_delta,
         }
 
         return context
