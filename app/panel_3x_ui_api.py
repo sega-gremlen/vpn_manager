@@ -49,10 +49,11 @@ class PanelApi:
             user_telegram_id: int|str,
             expiry_time: datetime|int,
             traffic_limit: int,
+            inbound_id: int
     ) -> dict:
 
         data = {
-            "id": settings.INBOUND_ID,
+            "id": inbound_id,
             "settings": json.dumps({
                 "clients": [
                     {
@@ -73,21 +74,21 @@ class PanelApi:
 
 
     @classmethod
-    async def add_inbound(cls) -> bool:
+    async def add_inbound(cls, inbound_id, profile_name, port, prvt_key, sid, pubkey) -> bool:
         """ Добавить входящее соединение """
         exist_inbound = await cls.get_inbound()
         if not exist_inbound:
             data = {
-                "id": settings.INBOUND_ID,
+                "id": inbound_id,
                 "userId": 0,
                 "up": 0,
                 "down": 0,
                 "total": 0,
-                "remark": settings.PROFILE_NAME,
+                "remark": profile_name,
                 "enable": True,
                 "expiryTime": 0,
                 "listen": "",
-                "port": settings.INBOUND_PORT,
+                "port": port,
                 "protocol": "vless",
                 "settings": json.dumps({
                     "clients": [],
@@ -106,15 +107,15 @@ class PanelApi:
                             settings.MASK_HOST,
                             f"www.{settings.MASK_HOST}"
                         ],
-                        "privateKey": settings.PRVTKEY,
+                        "privateKey": prvt_key,
                         "minClient": "",
                         "maxClient": "",
                         "maxTimediff": 0,
                         "shortIds": [
-                            settings.SID
+                            sid
                         ],
                         "settings": {
-                            "publicKey": settings.PUBKEY,
+                            "publicKey": pubkey,
                             "fingerprint": "chrome",
                             "serverName": "",
                             "spiderX": "/"
@@ -176,13 +177,15 @@ class PanelApi:
             user_telegram_id: int|str,
             expiry_time: datetime|int,
             traffic_limit: int,
+            inbound_id: int,
     ) -> bool:
         """ Добавить клиента """
 
         data = await cls.generate_data_for_user(user_uuid,
                                                 user_telegram_id,
                                                 expiry_time,
-                                                traffic_limit)
+                                                traffic_limit,
+                                                inbound_id)
 
         async with aiohttp.ClientSession() as session:
             async with session.post(url=cls.login_address, params=cls.params):
@@ -221,10 +224,15 @@ class PanelApi:
                                         user_uuid: str,
                                         user_telegram_id: int,
                                         new_expiry_time: datetime,
-                                        traffic_limit) -> bool:
+                                        traffic_limit,
+                                        inbound_id) -> bool:
         """ Обновить дату завершения подписки у клиента """
 
-        data = await cls.generate_data_for_user(user_uuid, user_telegram_id, new_expiry_time, traffic_limit)
+        data = await cls.generate_data_for_user(user_uuid,
+                                                user_telegram_id,
+                                                new_expiry_time,
+                                                traffic_limit,
+                                                inbound_id)
 
         async with aiohttp.ClientSession() as session:
             async with session.post(url=cls.login_address, params=cls.params):
@@ -263,8 +271,24 @@ class PanelApi:
 
 
 if __name__ == '__main__':
-    asyncio.run(PanelApi.add_inbound())
+    asyncio.run(PanelApi.add_inbound(settings.INBOUND_ID,
+                                     settings.PROFILE_NAME,
+                                     settings.INBOUND_PORT,
+                                     settings.PRVTKEY,
+                                     settings.SID,
+                                     settings.PUBKEY))
+
     asyncio.run(PanelApi.add_client_to_inbound(settings.BRIDGE_UUID,
                                                'bridge',
                                                0,
-                                               0))
+                                               0,
+                                               settings.INBOUND_ID))
+
+    asyncio.run(PanelApi.add_inbound(settings.VIP_INBOUND_ID,
+                                     settings.VIP_PROFILE_NAME,
+                                     settings.VIP_INBOUND_PORT,
+                                     settings.VIP_PRVTKEY,
+                                     settings.VIP_SID,
+                                     settings.VIP_PUBKEY))
+
+

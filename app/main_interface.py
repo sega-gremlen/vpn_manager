@@ -142,7 +142,8 @@ class MainInterface:
         await PanelApi.add_client_to_inbound(user.xray_uuid,
                                              user.telegram_id,
                                              subscription.stop,
-                                             settings.TRAFFIC_LIMIT * 1024 ** 3)
+                                             settings.TRAFFIC_LIMIT * 1024 ** 3,
+                                             settings.INBOUND_ID)
 
         # Меняем статус потраченного пробного периода
         await BaseDAO.patch(user, trial_wasted=True)
@@ -252,7 +253,8 @@ class MainInterface:
             await PanelApi.add_client_to_inbound(user.xray_uuid,
                                                  user.telegram_id,
                                                  subscription.stop,
-                                                 settings.TRAFFIC_LIMIT * 1024 ** 3)
+                                                 settings.TRAFFIC_LIMIT * 1024 ** 3,
+                                                 settings.INBOUND_ID)
 
             # Меняем статус потраченного пробного периода
             await BaseDAO.patch(user, trial_wasted=True)
@@ -265,7 +267,8 @@ class MainInterface:
             await PanelApi.update_client_expiry_time(user.xray_uuid,
                                                      user.telegram_id,
                                                      subscription.stop,
-                                                     settings.TRAFFIC_LIMIT * 1024 ** 3)
+                                                     settings.TRAFFIC_LIMIT * 1024 ** 3,
+                                                     settings.INBOUND_ID)
 
             xray_client_config_url = None
 
@@ -283,17 +286,17 @@ class MainInterface:
 
 
     @staticmethod
-    async def render_xray_url(xray_uuid):
+    async def render_xray_url(xray_uuid, vip=False):
         """ Генерация данных для создания конфигурационного url """
 
         xray_url_data = {
             'xray_uuid': xray_uuid,
             'host': settings.MAIN_HOST,
-            'port': settings.INBOUND_PORT,
-            'pbk': settings.PUBKEY,
+            'port': settings.INBOUND_PORT if not vip else settings.VIP_INBOUND_PORT,
+            'pbk': settings.PUBKEY if not vip else settings.VIP_PUBKEY,
             'mask_host': settings.MASK_HOST,
-            'sid': settings.SID,
-            'profile_name': settings.PROFILE_NAME,
+            'sid': settings.SID if not vip else settings.VIP_SID,
+            'profile_name': settings.PROFILE_NAME if not vip else settings.VIP_PROFILE_NAME,
         }
 
         return xray_url_data
@@ -380,8 +383,7 @@ class MainInterface:
         else:
             next_traffic_reset = 'Нет сброса трафика'
 
-        delta_to_end: timedelta = (curr_period_and_sub.stop_1 - datetime.now())
-        formatted_delta = MainInterface.custom_format_timedelta(delta_to_end)
+        formatted_delta = await MainInterface.custom_format_timedelta(curr_period_and_sub.stop_1 - datetime.now())
 
         context = {
             "telegram_id": user_telegram_id,
@@ -434,7 +436,7 @@ class MainInterface:
 
 
     @classmethod
-    def custom_format_timedelta(cls, time_delta: timedelta) -> str:
+    async def custom_format_timedelta(cls, time_delta: timedelta) -> str:
         """ Форматирование timedelta в строковое представление """
 
         formatted_delta = []
@@ -456,6 +458,17 @@ class MainInterface:
         if not formatted_delta:
             return 'Меньше часа'
         return ', '.join(formatted_delta[:3])
+
+
+    async def create_vip_user(self, user_name):
+        user_uuid = str(uuid.uuid4())
+        await PanelApi.add_client_to_inbound(user_uuid,
+                                             user_name,
+                                             0,
+                                             0,
+                                             settings.VIP_INBOUND_ID)
+        data_to_config = await self.render_xray_url(user_uuid, True)
+        return data_to_config
 
 
 main_interface = MainInterface()

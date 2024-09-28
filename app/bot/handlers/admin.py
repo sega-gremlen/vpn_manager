@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 
+from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
@@ -15,6 +16,8 @@ from app.db.users.models import Users
 from app.panel_3x_ui_api import PanelApi
 from app.bot.utils.statesform import Admin
 from app.aps import current_jobs
+from app.main_interface import main_interface
+from app.bot.utils.jinja_templates import xray_url
 
 
 
@@ -70,7 +73,10 @@ async def add_user_get_tg_id(message: Message, state: FSMContext):
 
 
 async def add_vip_user(message: Message, state: FSMContext):
-    ...
+    user_name = message.text
+    data_config = await main_interface.create_vip_user(user_name)
+    await message.answer(text=xray_url.render(data_config),
+                         parse_mode=ParseMode.HTML)
 
 
 async def get_curr_jobs(message: Message, state: FSMContext):

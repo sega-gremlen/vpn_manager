@@ -56,12 +56,18 @@ class Settings(BaseSettings):
     PANEL_USERNAME: str
     PANEL_PASSWORD: str
     PUBKEY: str
+    VIP_PUBKEY: str
     PRVTKEY: str
+    VIP_PRVTKEY: str
     MASK_HOST: str
     SID: str
+    VIP_SID: str
     INBOUND_ID: int
+    VIP_INBOUND_ID: int
     INBOUND_PORT: int
+    VIP_INBOUND_PORT: str
     PROFILE_NAME: str
+    VIP_PROFILE_NAME: str
     BRIDGE_UUID: str
 
     # ------------ Уведомления

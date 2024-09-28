@@ -9,6 +9,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from sqlalchemy import insert
 
 from httpx import AsyncClient
+from sqlalchemy.util import await_only
 
 from app.bot.main import register_user_handlers
 from app.notification_api import app as fastapi_app
@@ -69,8 +70,25 @@ async def prepare_database():
 async def prepare_3x_ui():
     """ Подготовка тестового входящего соединения 3x-ui """
 
-    await PanelApi.del_inbound()
-    await PanelApi.add_inbound()
+    await PanelApi.add_inbound(settings.INBOUND_ID,
+                                     settings.PROFILE_NAME,
+                                     settings.INBOUND_PORT,
+                                     settings.PRVTKEY,
+                                     settings.SID,
+                                     settings.PUBKEY)
+
+    await PanelApi.add_client_to_inbound(settings.BRIDGE_UUID,
+                                               'bridge',
+                                               0,
+                                               0,
+                                               settings.INBOUND_ID)
+
+    await PanelApi.add_inbound(settings.VIP_INBOUND_ID,
+                                     settings.VIP_PROFILE_NAME,
+                                     settings.VIP_INBOUND_PORT,
+                                     settings.VIP_PRVTKEY,
+                                     settings.VIP_SID,
+                                     settings.VIP_PUBKEY)
 
     for user in users[1:]:
         user_id = users.index(user) + 1
@@ -79,7 +97,8 @@ async def prepare_3x_ui():
             user['xray_uuid'],
             user['telegram_id'],
             user_sub[0]['stop'],
-            settings.TRAFFIC_LIMIT * 1000 ** 3
+            settings.TRAFFIC_LIMIT * 1024 ** 3,
+            settings.INBOUND_ID
         )
 
 @pytest.fixture(scope='function', autouse=True)
