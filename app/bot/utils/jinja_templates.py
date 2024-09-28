@@ -176,7 +176,7 @@ profile_stat = Template("""
 • Время окончания
 {{ sub_end_datetime }}
 • Осталось
-{{ days_to_end }} дней
+{{ days_to_end }}
 
 <b>Трафик</b>
 • Расход за период
