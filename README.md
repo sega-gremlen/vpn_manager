@@ -26,3 +26,5 @@ docker compose bild && docker compose up
 3. Panel inbound: 37465
 4. DB: 37779
 5. SSH: 37780
+
+Api ЮMoney: https://yoomoney.ru/docs/payment-buttons/using-api/flow

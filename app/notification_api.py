@@ -69,12 +69,16 @@ async def get_payment(
     if not main_interface.check_hash(payment_data):
         raise WrongHashSumm
 
-    if os.getenv('MODE') in ('PROD', 'DEV'):
-        # Не знаю как это прокрутить в тесте
-        await activate_subscription(payment_data, bot)
-        return Response(status_code=200)
-    else:
-        return payment_data
+    try:
+        if os.getenv('MODE') in ('PROD', 'DEV'):
+            # Не знаю как это прокрутить в тесте
+            await activate_subscription(payment_data, bot)
+            return Response(status_code=200)
+        else:
+            return payment_data
+    except Exception as e:
+        logger.error(e)
+        return Response(status_code=422)
 
 
 @app.get("/redirect/{label}")
